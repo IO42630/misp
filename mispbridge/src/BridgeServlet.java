@@ -23,7 +23,57 @@ public final class BridgeServlet extends HttpServlet {
 
 
     public BridgeServlet() {
+
+
     }
+
+
+
+    // handle POST (Ride)
+    // add Ride to AvailableRides
+
+    // handle GET (Link)
+    // remove Ride from AvailableRides
+    // add Ride to ReservedRides
+    // send OK (Ride) to mispclient
+    // send OK (Ride) to public
+
+    // handle GET (Ride)
+    // if Ride in ReservedRides,
+    // remove Ride from ReservedRides
+    // add Ride to Deliveredrides
+
+    // handle GET (Ride)(Request)
+    // if Ride in DeliveredRides
+    // remove Ride from DeliveredRides
+    // add Ride to NewRequest
+    // send OK (Ride)(Request)
+    // remove Ride from NewRequest
+    // add Ride to ForwardedRequest
+
+    // handle GET (Ride)(Data)
+    // if Ride in ForwardedRequest
+    // remove Ride from ForwardedRequest
+    // add Ride to NewData
+    // send OK (Ride)(Data)
+    // remove Ride from NewData
+    // add Ride to ForwardedData
+    // send OK (EOL)
+    // remove Ride from ForwardedData
+    // add Ride to EOL
+
+    
+    // # send OK (Ride) to mispclient
+
+    // # send OK (Ride) to public
+
+    // # send OK (Ride)(Request)
+
+    // # send OK (Ride)(Data)
+
+    // # send OK (EOL)
+
+
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         response.setContentType("text/html");

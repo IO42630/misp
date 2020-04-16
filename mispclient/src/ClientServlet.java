@@ -21,8 +21,50 @@ public final class ClientServlet extends HttpServlet {
 
     public ClientServlet() {
 
+        // Thread 1
+        // get ride count from mispbridge
+        // while ride count < max
+        // add POST (Ride) to AvailableRides
+        // send POST (Ride)
+
+
+        // Thread 2
+        // for Rides in ReservedRides,
+        // send GET (Ride)
 
     }
+
+    // handle OK (Ride)
+    // remove Ride from AvailableRides
+    // add Ride to ReservedRides
+
+    // handle OK (Ride)(Request)
+    // remove Ride from AvailableRides
+    // add Request to NewRequest
+    // send GET (Request)
+    // remove Ride from NewRequest
+    // add Ride to ForwardedRequest
+
+    // handle OK (Data)
+    // remove Ride from ForwardedRequest
+    // add Ride to NewData
+    // send GET (Ride)(Data)
+    // remove Ride from NewData
+    // add Ride to ForwardedData
+
+    // handle OK (EOL)
+    // remove Ride from ForwardedData
+    // add Ride to EOl
+
+
+    // # send POST (Ride)
+
+    // # send GET (Ride)
+
+    // # send GET (Request)
+
+    // # send GET (Ride)(Data)
+
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         response.setContentType("text/html");

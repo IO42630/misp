@@ -4,20 +4,20 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
          version="2.4">
 
-    <display-name>Hello, World Application</display-name>
+    <display-name>BridgeServlet, World Application</display-name>
     <description>
         This is a simple web application with a source code organization
         based on the recommendations of the Application Developer's Guide.
     </description>
 
     <servlet>
-        <servlet-name>HelloServlet</servlet-name>
-        <servlet-class>mypackage.Hello</servlet-class>
+        <servlet-name>BridgeServlet</servlet-name>
+        <servlet-class>BridgeServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>HelloServlet</servlet-name>
-        <url-pattern>/mispclient</url-pattern>
+        <servlet-name>BridgeServlet</servlet-name>
+        <url-pattern>/core</url-pattern>
     </servlet-mapping>
 
 </web-app>

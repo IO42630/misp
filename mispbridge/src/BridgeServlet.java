@@ -62,7 +62,7 @@ public final class BridgeServlet extends HttpServlet {
     // remove Ride from ForwardedData
     // add Ride to EOL
 
-    
+
     // # send OK (Ride) to mispclient
 
     // # send OK (Ride) to public

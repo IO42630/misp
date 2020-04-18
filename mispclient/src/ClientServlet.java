@@ -15,32 +15,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public final class ClientServlet extends HttpServlet {
+public class ClientServlet extends HttpServlet {
 
     private static final String MISP_BRIDGE_URL = "http://localhost:9090/mispbridge/core";
 
-    private List<Ride> availableRides = new ArrayList<>();
-    private List<Ride> reservedRides = new ArrayList<>();
+    public List<Ride> availableRides = new ArrayList<>();
+    public List<Ride> reservedRides = new ArrayList<>();
     private List<Ride> newRequests = new ArrayList<>();
     private List<Ride> forwardedRequests = new ArrayList<>();
     private List<Ride> newData = new ArrayList<>();
     private List<Ride> forwardedData = new ArrayList<>();
 
-
     public ClientServlet() {
-
-        // Thread 1
-        // get ride count from mispbridge
-        // while ride count < max
-        // add POST (Ride) to AvailableRides
-        // send POST (Ride)
-
-
-        // Thread 2
-        // for Rides in ReservedRides,
-        // send GET (Ride)
-
+        new DoClientThings().start(this);
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     // handle OK (Ride)
     // remove Ride from AvailableRides
@@ -73,47 +73,22 @@ public final class ClientServlet extends HttpServlet {
 
     // # send GET (Ride)(Data)
 
-
+    @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
-        writer.println("<html>");
-        writer.println("<head>");
-        writer.println("<title>MispClient</title>");
-        writer.println("</head>");
-        writer.println("<body bgcolor=white>");
-        writer.println("<table border=\"0\">");
-        writer.println("<tr>");
-        writer.println("<td>");
-        writer.println("<img src=\"images/tomcat.gif\">");
-        writer.println("</td>");
-        writer.println("<td>");
-        writer.println("<h1>Sample Application Servlet</h1>");
-        writer.println("This is the output of a servlet that is part of");
-        writer.println("the Hello, World application.");
-        writer.println("</td>");
-        writer.println("</tr>");
-        writer.println(make2ColumnRow("foo", "bar"));
-
-
-        writer.println("</table>");
-        writer.println("</body>");
-        writer.println("</html>");
+        writer.println("<html><head><title>MispClient</title></head><body bgcolor=white>");
+        writer.println("</body></html>");
     }
 
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+    }
 
     private String make2ColumnRow(String one, String two) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<tr>");
-        sb.append("<td>");
-        sb.append(one);
-        sb.append("</td>");
-        sb.append("<td>");
-        sb.append(two);
-        sb.append("</td>");
-        sb.append("</tr>");
-
-        return sb.toString();
+        String sb = "<tr>" + "<td>" + one + "</td>" + "<td>" + two + "</td>" + "</tr>";
+        return sb;
     }
 
 
@@ -151,7 +126,7 @@ public final class ClientServlet extends HttpServlet {
     }
 
 
-    private void sendPostRide() throws IOException {
+    Ride sendPostRide(Ride ride) throws IOException, ServletException {
 
         URL url = new URL(MISP_BRIDGE_URL);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -162,7 +137,6 @@ public final class ClientServlet extends HttpServlet {
         connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
         connection.setRequestProperty("Content-Type", "application/json");
 
-        Ride ride = new Ride();
         availableRides.add(ride);
 
 
@@ -190,10 +164,11 @@ public final class ClientServlet extends HttpServlet {
         // process
         availableRides.remove(ride);
         reservedRides.add(ride);
+        return ride;
     }
 
 
-    private void sendGetRide(Ride ride) throws IOException {
+    Ride sendGetRide(Ride ride) throws IOException {
 
         URL url = new URL(MISP_BRIDGE_URL);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -203,8 +178,6 @@ public final class ClientServlet extends HttpServlet {
         connection.setRequestProperty("User-Agent", "USER_AGENT");
         connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
         connection.setRequestProperty("Content-Type", "application/json");
-
-
 
 
         // send POST
@@ -239,18 +212,16 @@ public final class ClientServlet extends HttpServlet {
         newRequests.remove(rideRequest);
         forwardedRequests.add(rideRequest);
 
-
+        return ride;
     }
 
-    private void sendGetRequest(String request) throws IOException {
+    Ride sendGetRequest(String request) throws IOException {
 
         URL url = new URL(MISP_BRIDGE_URL);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
         // prepare
         connection.setRequestMethod("GET");
-        connection.setRequestProperty("User-Agent", "USER_AGENT");
-        connection.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
         connection.setRequestProperty("Content-Type", "application/json");
 
 
@@ -285,6 +256,7 @@ public final class ClientServlet extends HttpServlet {
         // TODO add checks
         reservedRides.remove(ride);
         newRequests.add(ride);
+        return ride;
     }
 
 

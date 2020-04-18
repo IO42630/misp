@@ -20,10 +20,29 @@ public class BridgeMock extends BridgeServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
+
+
+
+
+
+
         super.doPost(request,response);
 
 
 
+    }
+
+
+
+    /**
+     * handle POST (Ride)
+     * add Ride to AvailableRides
+     */
+    @Override
+    protected Ride handlePostRide(HttpServletRequest request, HttpServletResponse response) {
+        // WIP wait till GET (LINK) arrives.
+        // # send OK (Ride) to mispclient
+        return new Ride();
     }
 
 }

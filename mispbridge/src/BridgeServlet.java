@@ -10,15 +10,15 @@ import java.util.List;
 
 public class BridgeServlet extends HttpServlet {
 
-    private static final String MISP_CLIENT_URL = "http://localhost:9090/mispclient/core";
+    protected static final String MISP_CLIENT_URL = "http://localhost:9090/mispclient/core";
 
     public List<Ride> availableRides = new ArrayList<>();
     public List<Ride> reservedRides = new ArrayList<>();
     public List<Ride> deliveredRides = new ArrayList<>();
-    private List<Ride> newRequests = new ArrayList<>();
-    private List<Ride> forwardedRequests = new ArrayList<>();
-    private List<Ride> newData = new ArrayList<>();
-    private List<Ride> forwardedData = new ArrayList<>();
+    protected List<Ride> newRequests = new ArrayList<>();
+    protected List<Ride> forwardedRequests = new ArrayList<>();
+    protected List<Ride> newData = new ArrayList<>();
+    protected List<Ride> forwardedData = new ArrayList<>();
 
     // #######
     //
@@ -50,8 +50,7 @@ public class BridgeServlet extends HttpServlet {
      * send OK (Ride) to mispclient
      * send OK (Ride) to public
      */
-    private Ride handleGetLink(HttpServletRequest request, HttpServletResponse response) {
-        // # send OK (Ride) to mispclient
+    protected Ride handleGetLink(HttpServletRequest request, HttpServletResponse response) {
         // # send OK (Ride) to public
         return new Ride();
     }
@@ -63,7 +62,7 @@ public class BridgeServlet extends HttpServlet {
      * remove Ride from ReservedRides
      * add Ride to Deliveredrides
      */
-    private Ride handleGetRide(HttpServletRequest request, HttpServletResponse response) {
+    protected Ride handleGetRide(HttpServletRequest request, HttpServletResponse response) {
         // # send OK (Ride)(Request)
         return new Ride();
     }
@@ -78,7 +77,7 @@ public class BridgeServlet extends HttpServlet {
      * remove Ride from NewRequest
      * add Ride to ForwardedRequest
      */
-    private Ride handleGetRideRequest(HttpServletRequest request, HttpServletResponse response) {
+    protected Ride handleGetRideRequest(HttpServletRequest request, HttpServletResponse response) {
         // # send OK (Ride)(Request)(Data)
         return new Ride();
     }
@@ -96,7 +95,7 @@ public class BridgeServlet extends HttpServlet {
      * remove Ride from ForwardedData
      * add Ride to EOL
      */
-    private Ride handleGetRideRequestData(HttpServletRequest request, HttpServletResponse response) {
+    protected Ride handleGetRideRequestData(HttpServletRequest request, HttpServletResponse response) {
         // # send OK (EOL)
         return new Ride();
     }
@@ -116,7 +115,8 @@ public class BridgeServlet extends HttpServlet {
      * handle POST (Ride)
      * add Ride to AvailableRides
      */
-    private Ride handlePostRide(HttpServletRequest request, HttpServletResponse response) {
+    protected Ride handlePostRide(HttpServletRequest request, HttpServletResponse response) {
+        // # send OK (Ride) to mispclient
         return new Ride();
     }
 }

@@ -1,19 +1,18 @@
 import org.apache.commons.io.IOUtils;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class BridgeMock extends BridgeServlet {
 
     private MockSet mockSet;
 
-    public BridgeMock(MockSet mockSet){
+    public BridgeMock(MockSet mockSet) {
         super();
-        mockSet.bridgeMock=this;
+        mockSet.bridgeMock = this;
         this.mockSet = mockSet;
     }
 
@@ -23,26 +22,35 @@ public class BridgeMock extends BridgeServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        super.doGet(request,response);
+        super.doGet(request, response);
     }
 
 
     /**
-     * handle GET (Link)
-     * remove Ride from AvailableRides
-     * add Ride to ReservedRides
-     * send OK (Ride) to mispclient
-     * send OK (Ride) to public
+     * handle GET (Request)<br>
+     * - wait for availableRides to have an entry <br>
+     * - move move Ride to deliveredRides <br>
+     * - wait for Ride to have Data <br>
+     * - respond to the original request with Data
      */
-    protected Ride handleGetLink(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Ride ride = null;
-        if(availableRides.size()>0){
-            ride = availableRides.remove(0);
-            reservedRides.add(ride);
+    @Override
+    protected void handleGetRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
 
+        while (!(availableRides.size() > 0)) { Thread.sleep(100); }
+
+        Ride ride = availableRides.remove(0);
+        deliveredRides.add(ride);
+
+        while (ride.getData() == null) {
+            ride.notify();
+            ride.wait();
         }
-        // # send OK (Ride) to public
-        return null;
+
+
+        PrintWriter writer = response.getWriter();
+        writer.print(ride.getData());
+
+
     }
 
 
@@ -52,9 +60,9 @@ public class BridgeMock extends BridgeServlet {
      * remove Ride from ReservedRides
      * add Ride to Deliveredrides
      */
-    protected Ride handleGetRide(HttpServletRequest request, HttpServletResponse response) {
+    protected void handleGetRide(HttpServletRequest request, HttpServletResponse response) {
         // # send OK (Ride)(Request)
-        return new Ride();
+        new Ride();
     }
 
 
@@ -85,9 +93,9 @@ public class BridgeMock extends BridgeServlet {
      * remove Ride from ForwardedData
      * add Ride to EOL
      */
-    protected Ride handleGetRideRequestData(HttpServletRequest request, HttpServletResponse response) {
+    protected void handleGetRideRequestData(HttpServletRequest request, HttpServletResponse response) {
         // # send OK (EOL)
-        return new Ride();
+        new Ride();
     }
 
     // #######
@@ -96,7 +104,7 @@ public class BridgeMock extends BridgeServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        super.doPost(request,response);
+        super.doPost(request, response);
     }
 
 
@@ -105,7 +113,7 @@ public class BridgeMock extends BridgeServlet {
      * add Ride to AvailableRides
      */
     @Override
-    protected Ride handlePostRide(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
+    protected void handlePostRide(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
         // WIP wait till GET (LINK) arrives.
         String jsonPayload = IOUtils.toString(request.getReader());
         Ride ride = new Ride(jsonPayload);
@@ -117,9 +125,7 @@ public class BridgeMock extends BridgeServlet {
         availableRides.get(i).wait();
 
         // # send OK (Ride) to mispclient
-        return null;
     }
-
 
 
 }

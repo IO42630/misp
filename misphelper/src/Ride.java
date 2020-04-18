@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class Ride {
 
     private static long count = 0L;
@@ -65,5 +67,22 @@ public class Ride {
         }
         sb.append("}");
         return sb.toString();
+    }
+
+
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Ride ride = (Ride) o;
+        return Objects.equals(rideID, ride.rideID) && Objects.equals(request, ride.request) && Objects.equals(data, ride.data);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rideID, request, data);
     }
 }

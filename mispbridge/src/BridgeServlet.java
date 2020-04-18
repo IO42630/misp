@@ -25,20 +25,36 @@ public class BridgeServlet extends HttpServlet {
     // #######
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String jsonPayload = IOUtils.toString(request.getReader());
 
         if (jsonPayload.contains("LINK")) {
-            handleGetLink(request, response);
+            Thread handleGetLinkThread = new Thread(() -> {
+                try {
+                    handleGetLink(request, response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            handleGetLinkThread.start();
         } else {
             Ride ridePayload = new Ride(jsonPayload);
             boolean hasReqeust = ridePayload.getRequest() != null;
             boolean hasData = ridePayload.getData() != null;
 
-            if (!hasReqeust && !hasData) { handleGetRide(request, response);}
-            if (hasReqeust && !hasData) { handleGetRideRequest(request, response);}
-            if (hasReqeust && hasData) { handleGetRideRequestData(request, response);}
+            if (!hasReqeust && !hasData) {
+                Thread handleGetRideThread = new Thread(() -> handleGetRide(request, response));
+                handleGetRideThread.start();
+            }
+            if (hasReqeust && !hasData) {
+                Thread handleGetRideRequestThread = new Thread(() -> handleGetRideRequest(request, response));
+                handleGetRideRequestThread.start();
+            }
+            if (hasReqeust && hasData) {
+                Thread handleGetRideRequestDataThread = new Thread(() -> handleGetRideRequestData(request, response));
+                handleGetRideRequestDataThread.start();
+            }
         }
     }
 
@@ -50,7 +66,7 @@ public class BridgeServlet extends HttpServlet {
      * send OK (Ride) to mispclient
      * send OK (Ride) to public
      */
-    protected Ride handleGetLink(HttpServletRequest request, HttpServletResponse response) {
+    protected Ride handleGetLink(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // # send OK (Ride) to public
         return new Ride();
     }
@@ -106,8 +122,11 @@ public class BridgeServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-
-        handlePostRide(request, response);
+        Thread handlePostRideThread = new Thread(() -> {
+            try {handlePostRide(request, response); } catch (IOException | InterruptedException e) { e.printStackTrace(); }
+        });
+        handlePostRideThread.setName("handlePostRideThread");
+        handlePostRideThread.start();
     }
 
 
@@ -115,7 +134,7 @@ public class BridgeServlet extends HttpServlet {
      * handle POST (Ride)
      * add Ride to AvailableRides
      */
-    protected Ride handlePostRide(HttpServletRequest request, HttpServletResponse response) {
+    protected Ride handlePostRide(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
         // # send OK (Ride) to mispclient
         return new Ride();
     }

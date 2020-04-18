@@ -267,7 +267,7 @@ layer=-1</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>Available
-Ride
+Rides
 bg=#FFF59D
 transparency=0</panel_attributes>
     <additional_attributes/>
@@ -281,7 +281,7 @@ transparency=0</panel_attributes>
       <h>190</h>
     </coordinates>
     <panel_attributes>Reserved
-Ride
+Rides
 bg=#FFF59D
 transparency=0</panel_attributes>
     <additional_attributes/>
@@ -295,7 +295,7 @@ transparency=0</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>New
-Request
+Requests
 bg=#E6EE9C
 transparency=0</panel_attributes>
     <additional_attributes/>
@@ -309,7 +309,7 @@ transparency=0</panel_attributes>
       <h>80</h>
     </coordinates>
     <panel_attributes>Available
-Ride
+Rides
 bg=#FFF59D
 transparency=0</panel_attributes>
     <additional_attributes/>
@@ -323,7 +323,7 @@ transparency=0</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>Delivered
-Ride
+Rides
 bg=#FFF59D
 transparency=0
 layer=1</panel_attributes>
@@ -338,7 +338,7 @@ layer=1</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>New
-Request
+Requests
 bg=#E6EE9C
 transparency=0</panel_attributes>
     <additional_attributes/>
@@ -352,7 +352,7 @@ transparency=0</panel_attributes>
       <h>40</h>
     </coordinates>
     <panel_attributes>Forwarded
-Request
+Requests
 bg=#E6EE9C
 transparency=0</panel_attributes>
     <additional_attributes/>
@@ -394,7 +394,7 @@ transparency=0</panel_attributes>
       <h>120</h>
     </coordinates>
     <panel_attributes>Forwarded
-Request
+Requests
 bg=#E6EE9C
 transparency=0</panel_attributes>
     <additional_attributes/>
@@ -436,7 +436,7 @@ transparency=0</panel_attributes>
       <h>250</h>
     </coordinates>
     <panel_attributes>Reserved
-Ride
+Rides
 bg=#FFF59D
 transparency=0
 layer=1</panel_attributes>

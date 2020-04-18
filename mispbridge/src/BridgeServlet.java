@@ -15,11 +15,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public final class BridgeServlet extends HttpServlet {
+public class BridgeServlet extends HttpServlet {
 
     private static final String MISP_CLIENT_URL  = "http://localhost:9090/mispclient/core";
 
-    private List<String> list = new ArrayList<>();
+    public List<Ride> availableRides = new ArrayList<>();
+    public List<Ride> reservedRides = new ArrayList<>();
+    public List<Ride> deliveredRides = new ArrayList<>();
+    private List<Ride> newRequests = new ArrayList<>();
+    private List<Ride> forwardedRequests = new ArrayList<>();
+    private List<Ride> newData = new ArrayList<>();
+    private List<Ride> forwardedData = new ArrayList<>();
 
 
     public BridgeServlet() {
@@ -29,8 +35,7 @@ public final class BridgeServlet extends HttpServlet {
 
 
 
-    // handle POST (Ride)
-    // add Ride to AvailableRides
+
 
     // handle GET (Link)
     // remove Ride from AvailableRides
@@ -74,50 +79,29 @@ public final class BridgeServlet extends HttpServlet {
     // # send OK (EOL)
 
 
-
+    @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
-        writer.println("<html>");
-        writer.println("<head>");
-        writer.println("<title>MispBridge</title>");
-        writer.println("</head>");
-        writer.println("<body bgcolor=white>");
-        writer.println("<table border=\"0\">");
-        writer.println("<tr>");
-        writer.println("<td>");
-        writer.println("<img src=\"images/tomcat.gif\">");
-        writer.println("</td>");
-        writer.println("<td>");
-        writer.println("<h1>Sample Application Servlet</h1>");
-        writer.println("This is the output of a servlet that is part of");
-        writer.println("the BridgeServlet, Very World application.");
-        writer.println("</td>");
-        writer.println("</tr>");
-
-        writer.println("REQUEST");
-        writer.println(request.getRequestURI());
-        writer.println(request.getRequestURL());
-        writer.println(request.getMethod());
-
-        for(String s :  list){
-            writer.println(s);
-        }
-
-
-
-
-
-        writer.println("</table>");
-        writer.println("</body>");
-        writer.println("</html>");
+        writer.println("<html><head><title>MispClient</title></head><body bgcolor=white>");
+        writer.println("</body></html>");writer.println("<html><head><title>MispClient</title></head><body bgcolor=white>");
+        writer.println("</body></html>");
     }
 
 
-
+    /**
+     * handle POST (Ride)
+     * add Ride to AvailableRides
+     */
+    @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
-        list.add(request.getRemoteUser());
+        String json = "foo"; // TODO
+        Ride availableRide = new Ride(json);
+        availableRides.add(availableRide);
+        // TODO wait rill GET(Link) to return OK(Ride) to mispclient
+
+
     }
 
 

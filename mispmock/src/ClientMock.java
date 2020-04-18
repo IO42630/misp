@@ -25,6 +25,7 @@ public class ClientMock extends ClientServlet  {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         mockSet.bridgeMock.doPost(request,response);
+
         return super.sendPostRide(ride);
     }
 

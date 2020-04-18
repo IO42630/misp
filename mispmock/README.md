@@ -1,5 +1,7 @@
 #### About
-Mockup for easy debugging.
+* Mockup for easy debugging. 
+    * Mock *requests* and *responses*.
+    * Teleport them between *actors*. 
 * There are 4 actors which are mocked:
     * `AppMock` : the App hosted on *localhost*.
     * `ClientMock` : the *mispclient* Servlet.

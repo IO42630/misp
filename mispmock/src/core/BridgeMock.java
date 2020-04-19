@@ -3,6 +3,7 @@ package core;
 import exchange.ExchangeMock;
 import exchange.RequestMock;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.ServletException;
@@ -47,7 +48,8 @@ public class BridgeMock extends BridgeServlet {
 
         synchronized (exchange) {
             String parsedRequest = IOUtils.toString(request.getReader());
-
+            JSONObject obj = new JSONObject(parsedRequest) ;
+            parsedRequest = obj.getString("request");
 
 
 

@@ -1,5 +1,8 @@
 package core;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Objects;
 
 public class Ride {
@@ -20,13 +23,21 @@ public class Ride {
         id = count++;
     }
 
-    public Ride(String json) {
-        json = json.replace("{", "").replace("}", "");
-        String[] split = json.split(",");
-        String idString = unbrace(split[0].split(":")[1]);
-        id = Long.parseLong(idString);
-        request = unbrace(split[1].split(":")[1]);
-        data = unbrace(split[2].split(":")[1]);
+    public Ride(String jsonString) {
+        JSONObject obj = new JSONObject(jsonString);
+        id = obj.getLong("id");
+        try{
+            request = obj.getString("request");
+        } catch (JSONException e){
+            request = null;
+        }
+        try{
+            data = obj.getString("data");
+        }catch (JSONException e){
+            data = null;
+        }
+
+
     }
 
 
@@ -39,7 +50,10 @@ public class Ride {
     }
 
 
-    public Ride setState(State state){ this.state = state; return this;}
+    public Ride setState(State state) {
+        this.state = state;
+        return this;
+    }
 
     public String getRequest() {
         return this.request;
@@ -53,33 +67,20 @@ public class Ride {
         return this.id;
     }
 
-    public State getState(){return this.state;}
+    public State getState() {return this.state;}
 
     private String brace(String foo) {
         return "\"" + foo + "\"";
     }
 
-    private String unbrace(String foo){ return foo.replace("\"","");    }
+    private String unbrace(String foo) { return foo.replace("\"", ""); }
 
     public String json() {
-        String[] keys = {"rideID",
-                         "request",
-                         "data"};
-        String[] values = {"" + id,
-                           request,
-                           data};
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
-        for (int i = 0; i < keys.length; i++) {
-            sb.append(brace(keys[i]));
-            sb.append(":");
-            sb.append(brace(values[i]));
-            if (i + 1 < keys.length) {
-                sb.append(",");
-            }
-        }
-        sb.append("}");
-        return sb.toString();
+        JSONObject obj = new JSONObject();
+        obj.put("id", id);
+        obj.put("request", request);
+        obj.put("data",data);
+        return obj.toString();
     }
 
 
@@ -95,8 +96,6 @@ public class Ride {
     public int hashCode() {
         return Objects.hash(id, request, data);
     }
-
-
 
 
 }

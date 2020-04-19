@@ -19,6 +19,7 @@ public class UserMock extends ActorRunnable {
 
     public UserMock(MockSet mockSet){
         super(mockSet);
+        mockSet.userMock = this;
     }
 
     @Override
@@ -57,7 +58,7 @@ public class UserMock extends ActorRunnable {
 
         exchange.request.setMethod("GET");
         exchange.request.setContentType("application/json");
-        String requestBody = "REQUEST-"+requestCount++;
+        String requestBody = "REQUEST-"+(++requestCount);
         String jsonString = "{\"request\":\""+requestBody+ "\"}";
         exchange.request.setContent(jsonString.getBytes());
 
@@ -70,7 +71,7 @@ public class UserMock extends ActorRunnable {
             // handle OK (Data)
             String data = exchange.response.getContentAsString();
             System.out.println(data + " of REQUEST-"+requestCount);
-
+            exchange.notify();
         }
     }
 

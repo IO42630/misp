@@ -62,12 +62,14 @@ public class BridgeMock extends BridgeServlet {
                 ride.setState(State.BOOKED);
 
 
-                while (ride.getData()==null) {
+                while (ride.getState()!=State.LOADED) {
                     ride.notify();
                     Thread.sleep(100);
                     ride.wait();
                 }
-                ride.setState(State.LOADED);
+
+
+                rideMap.remove(ride.getID());
 
                 exchange.response.setStatus(200);
                 PrintWriter writer = exchange.response.getWriter();
@@ -76,6 +78,7 @@ public class BridgeMock extends BridgeServlet {
                 writer.close();
 
                 ride.notify();
+
             }
             exchange.notify();
         }
@@ -106,23 +109,28 @@ public class BridgeMock extends BridgeServlet {
 
         synchronized (exchange) {
             String jsonPayload = IOUtils.toString(request.getReader());
-            Ride ride = new Ride(jsonPayload);
+            Ride parsedRide = new Ride(jsonPayload);
+            Ride thisRide = rideMap.get(parsedRide.getID());
 
-            synchronized (ride) {
-                ride.setState(State.LOADED);
+            synchronized (thisRide) {
+                thisRide.setData(parsedRide.getData());
+                thisRide.setState(State.LOADED);
 
 
 
                 exchange.response.setStatus(200);
                 PrintWriter writer = response.getWriter();
-                writer.write(ride.json());
+                writer.write(thisRide.json());
                 writer.flush();
                 writer.close();
-                rideMap.remove(ride.getID());
-                ride.notify();
+
+
+
+                thisRide.notify();
 
             }
             exchange.notify();
+
         }
 
     }

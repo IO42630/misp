@@ -24,8 +24,21 @@ public class Ride {
     }
 
     public Ride(String jsonString) {
-        JSONObject obj = new JSONObject(jsonString);
-        id = obj.getLong("id");
+        JSONObject obj = new JSONObject();
+        try {
+            obj = new JSONObject(jsonString);
+        }catch (JSONException e){
+            int br = 0;
+        }
+
+
+
+
+        try {
+            id = obj.getLong("id");
+        }catch (JSONException e){
+            id = count++;
+        }
         try{
             request = obj.getString("request");
         } catch (JSONException e){

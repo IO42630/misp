@@ -43,10 +43,11 @@ public class ClientMock extends ClientServlet {
             // handle OK (Ride)(Request)
             Ride parsedRide = new Ride(exchange.response.getContentAsString());
             ride.setRequest(parsedRide.getRequest());
-            ride.setState(State.BOOKED);
-            sendGetRequest(ride);
-        }
 
+            exchange.notify();
+        }
+        ride.setState(State.BOOKED);
+        sendGetRequest(ride);
 
 
     }
@@ -69,14 +70,15 @@ public class ClientMock extends ClientServlet {
             // Mock GET (Request)
             exchange.notify();
             mockSet.appMock.doGet(exchange.request,exchange.response);
-            exchange.wait();
+            //exchange.wait();
 
             // handle OK (Data)
             Ride parsedRide = new Ride(exchange.response.getContentAsString());
             ride.setData(parsedRide.getData());
-            ride.setState(State.LOADED);
-            sendGetRideRequestData(ride);
+            exchange.notify();
         }
+        ride.setState(State.LOADED);
+        sendGetRideRequestData(ride);
 
     }
 
@@ -103,6 +105,7 @@ public class ClientMock extends ClientServlet {
             // handle OK (Ride)
             Ride parsedRide = new Ride(exchange.response.getContentAsString());
             rideMap.remove(parsedRide.getID());
+            exchange.notify();
         }
     }
 

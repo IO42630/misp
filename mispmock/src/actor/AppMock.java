@@ -15,6 +15,7 @@ public class AppMock extends ActorRunnable {
 
     public AppMock(MockSet mockSet) {
         super(mockSet);
+        mockSet.appMock = this;
     }
 
 
@@ -42,7 +43,7 @@ public class AppMock extends ActorRunnable {
             JSONObject obj = new JSONObject(parsedRequest);
             parsedRequest = obj.getString("request");
 
-            String dataString = "DATA" + parsedRequest.split("-")[1];
+            String dataString = "DATA-" + parsedRequest.split("-")[1];
             JSONObject dataObj = new JSONObject();
             dataObj.put("data", dataString);
 

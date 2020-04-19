@@ -7,9 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BridgeServlet extends HttpServlet {
@@ -28,33 +26,32 @@ public class BridgeServlet extends HttpServlet {
 
         String jsonPayload = IOUtils.toString(request.getReader());
 
-        if (jsonPayload.contains("REQUEST")) {
-            Thread handleGetLinkThread = new Thread(() -> {
+        Ride ridePayload = new Ride(jsonPayload);
+        boolean hasID = ridePayload.getID() != null;
+        boolean hasRequest = ridePayload.getRequest() != null;
+        boolean hasData = ridePayload.getData() != null;
+
+
+        if (hasID & hasRequest & !hasData) {
+            Thread handleGetUserRequestThread = new Thread(() -> {
                 try {
                     handleGetRequest(request, response);
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
-                }
+                } catch (IOException | InterruptedException e) {e.printStackTrace(); }
             });
-            handleGetLinkThread.setName("handleGetLinkThread");
-            handleGetLinkThread.start();
-        } else {
-            Ride ridePayload = new Ride(jsonPayload);
-            boolean hasReqeust = ridePayload.getRequest() != null;
-            boolean hasData = ridePayload.getData() != null;
-
-            if (hasReqeust && hasData) {
-                Thread handleGetRideRequestDataThread = new Thread(() -> {
-                    try {
-                        handleGetRideRequestData(request, response);
-                    } catch (IOException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                });
-                handleGetRideRequestDataThread.setName("handleGetRideRequestDataThread");
-                handleGetRideRequestDataThread.start();
-            }
+            handleGetUserRequestThread.setName("handleGetUserRequestThread");
+            handleGetUserRequestThread.start();
         }
+
+        if (hasID && hasRequest && hasData) {
+            Thread handleGetRideRequestDataThread = new Thread(() -> {
+                try {
+                    handleGetRideRequestData(request, response);
+                } catch (IOException | InterruptedException e) { e.printStackTrace(); }
+            });
+            handleGetRideRequestDataThread.setName("handleGetRideRequestDataThread");
+            handleGetRideRequestDataThread.start();
+        }
+
     }
 
 

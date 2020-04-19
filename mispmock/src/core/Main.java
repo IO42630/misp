@@ -21,14 +21,18 @@ public class Main {
         Runnable clientRunnable = new ClientRunnable(mockSet);
         Runnable appRunnable = new AppMock(mockSet);
 
-        Thread publicThread = new Thread(publicRunnable);
+        Thread userThread = new Thread(publicRunnable);
         Thread bridgeThread = new Thread(bridgeRunable);
         Thread clientThread = new Thread(clientRunnable);
         Thread appThread = new Thread(appRunnable);
 
-        publicThread.start();
+        userThread.setName("userThread");
+        userThread.start();
+        bridgeThread.setName("bridgeThread");
         bridgeThread.start();
+        clientThread.setName("clientThread");
         clientThread.start();
+        appThread.setName("appThread");
         appThread.start();
 
         int br =0;

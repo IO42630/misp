@@ -2,11 +2,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Wraps a ClientServlet so it can be debugged easily, i.e. without running Tomcat.
@@ -22,7 +18,7 @@ public class ClientMock extends ClientServlet  {
     }
 
     @Override
-    Ride sendPostRide(Ride oldRide) throws IOException, ServletException {
+    void sendPostRide(Ride oldRide) throws IOException, ServletException {
         // SUPER ILLEGAL MOCKING
         MockHttpServletRequest request = new MockHttpServletRequest();
 
@@ -34,8 +30,6 @@ public class ClientMock extends ClientServlet  {
         MockHttpServletResponse response = new MockHttpServletResponse();
         availableRides.add(oldRide);
         mockSet.bridgeMock.doPost(request,response);
-        // END
-        return null;
     }
 
 

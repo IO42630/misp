@@ -1,4 +1,6 @@
 import org.apache.commons.io.IOUtils;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -115,16 +117,24 @@ public class BridgeMock extends BridgeServlet {
     @Override
     protected void handlePostRide(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
         // WIP wait till GET (LINK) arrives.
+
         String jsonPayload = IOUtils.toString(request.getReader());
         Ride ride = new Ride(jsonPayload);
         availableRides.add(ride);
-        // WIP force surrender lock on ride
-        int i = availableRides.indexOf(ride);
-        availableRides.get(i).notify();
-        // WIP wait to receive lock back
-        availableRides.get(i).wait();
+        synchronized (ride){
 
-        // # send OK (Ride) to mispclient
+            while (availableRides.contains(ride)){
+                ride.notify();
+                Thread.sleep(100);
+                ride.wait();
+            }
+
+            // SUPER ILLEGAL MOCKING
+            response.setStatus(200);
+            PrintWriter writer = response.getWriter();
+            writer.print(ride.json());
+        }
+
     }
 
 

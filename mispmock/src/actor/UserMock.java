@@ -35,12 +35,12 @@ public class UserMock extends ActorRunnable {
     }
 
     @Override
-    void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
     }
 
     @Override
-    void doPost(HttpServletRequest request, HttpServletResponse response) {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) {
 
     }
 

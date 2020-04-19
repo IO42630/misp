@@ -36,6 +36,7 @@ public class BridgeServlet extends HttpServlet {
                     e.printStackTrace();
                 }
             });
+            handleGetLinkThread.setName("handleGetLinkThread");
             handleGetLinkThread.start();
         } else {
             Ride ridePayload = new Ride(jsonPayload);
@@ -50,6 +51,7 @@ public class BridgeServlet extends HttpServlet {
                         e.printStackTrace();
                     }
                 });
+                handleGetRideRequestDataThread.setName("handleGetRideRequestDataThread");
                 handleGetRideRequestDataThread.start();
             }
         }

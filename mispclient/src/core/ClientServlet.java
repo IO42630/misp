@@ -26,9 +26,9 @@ public class ClientServlet extends HttpServlet {
     public ClientServlet() {
 
         // Thread : while AvailableRides < 256 , add Ride to AvailableRides , send POST (Ride) [DONE]
-        new Thread(new PostRideRunnable(this)).start();
-
-
+        Thread postRideThread = new Thread(new PostRideRunnable(this));
+        postRideThread.setName("postRideThread");
+        postRideThread.start();
     }
 
 
@@ -65,7 +65,7 @@ public class ClientServlet extends HttpServlet {
     /**
      * # send GET (Request) to App
      */
-    void sendGetRequest(Ride ride) throws IOException {
+    void sendGetRequest(Ride ride) throws IOException, ServletException, InterruptedException {
 
         // send FOO
         // TODO make sure as many as possible tyes of requests can be forwarded.
@@ -85,7 +85,7 @@ public class ClientServlet extends HttpServlet {
     /**
      * # send GET (Ride)(Request)(Data)
      */
-    void sendGetRideRequestData(Ride oldRide) throws IOException {
+    void sendGetRideRequestData(Ride oldRide) throws IOException, ServletException, InterruptedException {
 
         HttpURLConnection connection = ConnectionHelper.make("GET", MISP_BRIDGE_URL);
 

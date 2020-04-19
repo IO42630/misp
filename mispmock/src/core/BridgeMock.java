@@ -67,11 +67,14 @@ public class BridgeMock extends BridgeServlet {
                     Thread.sleep(100);
                     ride.wait();
                 }
+                ride.setState(State.LOADED);
 
                 exchange.response.setStatus(200);
                 PrintWriter writer = exchange.response.getWriter();
-                writer.print(ride.getData());
-                ride.setState(State.LOADED);
+                writer.write(ride.getData());
+                writer.flush();
+                writer.close();
+
                 ride.notify();
             }
             exchange.notify();
@@ -112,7 +115,9 @@ public class BridgeMock extends BridgeServlet {
 
                 exchange.response.setStatus(200);
                 PrintWriter writer = response.getWriter();
-                writer.print(ride.json());
+                writer.write(ride.json());
+                writer.flush();
+                writer.close();
                 rideMap.remove(ride.getID());
                 ride.notify();
 
@@ -167,10 +172,13 @@ public class BridgeMock extends BridgeServlet {
 
                 exchange.response.setStatus(200);
                 PrintWriter writer = response.getWriter();
-                writer.print(ride.json());
-                exchange.notify();
+                //writer.print(ride.json());
+                writer.write(ride.json());
+                writer.flush();
+                writer.close();
+                ride.notify();
             }
-
+            exchange.notify();
         }
 
 

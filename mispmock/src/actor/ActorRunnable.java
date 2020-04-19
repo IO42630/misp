@@ -47,8 +47,8 @@ public abstract class ActorRunnable implements Runnable {
     }
 
 
-    abstract void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
+    public abstract void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
 
-    abstract void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
+    public abstract void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
 
 }

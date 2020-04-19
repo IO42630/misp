@@ -1,6 +1,7 @@
 package core;
 
 import exchange.ExchangeMock;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import java.io.DataOutputStream;
@@ -55,31 +56,27 @@ public class ClientMock extends ClientServlet {
      * # send GET (Request) to App
      */
     @Override
-    void sendGetRequest(Ride ride) throws IOException {
+    void sendGetRequest(Ride ride) throws IOException, ServletException, InterruptedException {
 
-        HttpURLConnection connection = ConnectionHelper.make("GET", ClientServlet.APP_URL);
+        // Mock Exchange
+        ExchangeMock exchange = new ExchangeMock();
 
-        // send GET (Request)
-        connection.setDoOutput(true);
-        DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-        outputStream.writeBytes(ride.getRequest());
-        outputStream.flush();
-        outputStream.close();
+        exchange.request.setMethod("GET");
+        exchange.request.setContentType("application/json");
+        exchange.request.setContent(ride.json().getBytes());
 
-        // handle OK (Data)
-        // remove Ride from BookedRides
-        // add Ride to LoadedRides
-        // send GET (Ride)(Data)
-        if (connection.getResponseCode() == 200) {
-            String parsedData = ConnectionHelper.parseString(connection);
-            ride.setData(parsedData);
+        synchronized (exchange){
+            // Mock GET (Request)
+            exchange.notify();
+            mockSet.appMock.doGet(exchange.request,exchange.response);
+            exchange.wait();
+
+            // handle OK (Data)
+            Ride parsedRide = new Ride(exchange.response.getContentAsString());
+            ride.setData(parsedRide.getData());
             ride.setState(State.LOADED);
+            sendGetRideRequestData(ride);
         }
-
-        sendGetRideRequestData(ride);
-
-
-
 
     }
 
@@ -88,24 +85,24 @@ public class ClientMock extends ClientServlet {
      * # send GET (Ride)(Request)(Data)
      */
     @Override
-    void sendGetRideRequestData(Ride ride) throws IOException {
+    void sendGetRideRequestData(Ride ride) throws IOException, ServletException, InterruptedException {
 
-        HttpURLConnection connection = ConnectionHelper.make("GET", ClientServlet.MISP_BRIDGE_URL);
+        // Mock Exchange
+        ExchangeMock exchange = new ExchangeMock();
 
-        // send GET (Ride)(Request)(Data)
-        connection.setDoOutput(true);
-        DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-        outputStream.writeBytes(ride.json());
-        outputStream.flush();
-        outputStream.close();
+        exchange.request.setMethod("GET");
+        exchange.request.setContentType("application/json");
+        exchange.request.setContent(ride.json().getBytes());
 
-        // handle OK (Ride)
-        // remove Ride from LoadedRides
-        if (connection.getResponseCode() == 200) {
-            Ride shellIdRide = ConnectionHelper.parseRide(connection);
-            if (shellIdRide.getID() != null) {
-                rideMap.remove(ride.getID());
-            }
+        synchronized (exchange){
+            // Mock GET (Ride)(Request)(Data)
+            exchange.notify();
+            mockSet.bridgeMock.doGet(exchange.request,exchange.response);
+            exchange.wait();
+
+            // handle OK (Ride)
+            Ride parsedRide = new Ride(exchange.response.getContentAsString());
+            rideMap.remove(parsedRide.getID());
         }
     }
 

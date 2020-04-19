@@ -8,6 +8,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -147,8 +148,8 @@ public class ResponseMock extends MockHttpServletResponse  implements HttpServle
     }
 
     @Override
-    public PrintWriter getWriter() {
-        return null;
+    public PrintWriter getWriter() throws UnsupportedEncodingException {
+        return super.getWriter();
     }
 
     @Override

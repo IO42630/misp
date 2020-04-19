@@ -8,7 +8,7 @@ public class Main {
 
         MockSet mockSet = new MockSet();
 
-        Runnable publicRunnable = new PublicMock(mockSet);
+        Runnable publicRunnable = new UserMock(mockSet);
         Runnable bridgeRunable = new BridgeRunnable(mockSet);
         Runnable clientRunnable = new ClientRunnable(mockSet);
         Runnable appRunnable = new AppMock(mockSet);

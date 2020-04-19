@@ -1,12 +1,14 @@
 import exchange.ExchangeMock;
 import exchange.RequestMock;
 import org.apache.commons.io.IOUtils;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Map;
 
 public class BridgeMock extends BridgeServlet {
 
@@ -44,13 +46,16 @@ public class BridgeMock extends BridgeServlet {
         synchronized (exchange) {
             String parsedRequest = IOUtils.toString(request.getReader());
 
-            while (!(availableRides.size() > 0)) { Thread.sleep(100); }
 
-            Ride ride = availableRides.remove(0);
+
+
+            while (mapHelper.containsLess(1, State.AVAILABLE)) { Thread.sleep(100); }
+
+            Ride ride = mapHelper.pickAvailable();
 
             synchronized (ride) {
                 ride.setRequest(parsedRequest);
-                bookedRides.add(ride);
+                ride.setState(State.BOOKED);
 
 
                 while (ride.getData()==null) {
@@ -62,8 +67,7 @@ public class BridgeMock extends BridgeServlet {
                 exchange.response.setStatus(200);
                 PrintWriter writer = exchange.response.getWriter();
                 writer.print(ride.getData());
-                loadedRides.remove(ride);
-
+                ride.setState(State.LOADED);
                 ride.notify();
             }
             exchange.notify();
@@ -98,21 +102,18 @@ public class BridgeMock extends BridgeServlet {
             Ride ride = new Ride(jsonPayload);
 
             synchronized (ride) {
-                bookedRides.remove(ride);
+                ride.setState(State.LOADED);
 
-                while (!bookedRides.contains(ride)) {
-                    ride.notify();
-                    Thread.sleep(100);
-                    ride.wait();
-                }
 
 
                 exchange.response.setStatus(200);
                 PrintWriter writer = response.getWriter();
                 writer.print(ride.json());
-                exchange.notify();
-            }
+                rideMap.remove(ride.getID());
+                ride.notify();
 
+            }
+            exchange.notify();
         }
 
     }
@@ -124,6 +125,13 @@ public class BridgeMock extends BridgeServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         super.doPost(request, response);
+
+        // RequestMock mockRequest = (RequestMock) request;
+        // ExchangeMock exchange = mockRequest.exchange;
+        // synchronized (exchange) {
+        //     super.doPost(request, response);
+        // }
+
     }
 
 
@@ -144,8 +152,9 @@ public class BridgeMock extends BridgeServlet {
 
 
             synchronized (ride) {
-                availableRides.add(ride);
-                while (!bookedRides.contains(ride)) {
+                rideMap.put(ride.getID(), ride.setState(State.AVAILABLE));
+
+                while (ride.getState()==State.AVAILABLE) {
                     ride.notify();
                     Thread.sleep(100);
                     ride.wait();

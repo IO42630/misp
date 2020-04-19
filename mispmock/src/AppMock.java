@@ -1,4 +1,4 @@
-import org.mockito.Mockito;
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,7 +20,7 @@ public class AppMock extends ActorRunnable {
     void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 
-        HttpServletResponse mockResponse = Mockito.mock(HttpServletResponse.class);
+
         //Main.clientRunnable.responses.add(mockResponse);
 
     }

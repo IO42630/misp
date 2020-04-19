@@ -1,4 +1,4 @@
-import org.mockito.Mockito;
+
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -49,12 +49,12 @@ public abstract class ActorRunnable implements Runnable {
 
 
     public void processRequests(HttpServletRequest request) throws IOException, ServletException {
-        HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
+
 
         if (request.getMethod().equalsIgnoreCase("GET")) {
-            doGet(request, response);
+            doGet(request, null);
         } else if (request.getMethod().equalsIgnoreCase("POST")) {
-            doPost(request, response);
+            doPost(request, null);
         }
     }
 

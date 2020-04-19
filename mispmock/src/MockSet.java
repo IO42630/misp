@@ -1,5 +1,5 @@
 public class MockSet {
-    PublicMock publicMock;
+    UserMock userMock;
     BridgeMock bridgeMock;
     ClientMock clientMock;
     AppMock appMock;

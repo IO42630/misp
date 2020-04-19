@@ -2,10 +2,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class PublicMock extends ActorRunnable {
+public class UserMock extends ActorRunnable {
 
 
-    public PublicMock(MockSet mockSet){
+    public UserMock(MockSet mockSet){
         super(mockSet);
     }
 

@@ -21,7 +21,8 @@ public class ClientMock extends ClientServlet  {
     @Override
     void sendPostRide(Ride ride) throws IOException, ServletException, InterruptedException {
 
-        availableRides.add(ride);
+        rideMap.put(ride.getID(), ride.setState(State.AVAILABLE));
+
 
         // Mock Exchange
         ExchangeMock exchange = new ExchangeMock();
@@ -32,15 +33,14 @@ public class ClientMock extends ClientServlet  {
 
         synchronized (exchange){
             // Mock POST (Ride)
-            mockSet.bridgeMock.doPost(exchange.request,exchange.response);
             exchange.notify();
+            mockSet.bridgeMock.doPost(exchange.request,exchange.response);
             exchange.wait();
 
             // handle OK (Ride)(Request)
             Ride parsedRide = new Ride(exchange.response.getContentAsString());
             ride.setRequest(parsedRide.getRequest());
-            int i = availableRides.indexOf(ride);
-            bookedRides.add(availableRides.remove(i));
+            ride.setState(State.BOOKED);
             sendGetRequest(ride);
         }
 
@@ -53,15 +53,14 @@ public class ClientMock extends ClientServlet  {
      * # send GET (Request) to App
      */
     @Override
-    void sendGetRequest(Ride oldRide) throws IOException {
+    void sendGetRequest(Ride ride) throws IOException {
 
         HttpURLConnection connection = ConnectionHelper.make("GET", APP_URL);
 
         // send GET (Request)
-        availableRides.add(oldRide);
         connection.setDoOutput(true);
         DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-        outputStream.writeBytes(oldRide.getRequest());
+        outputStream.writeBytes(ride.getRequest());
         outputStream.flush();
         outputStream.close();
 
@@ -71,12 +70,11 @@ public class ClientMock extends ClientServlet  {
         // send GET (Ride)(Data)
         if (connection.getResponseCode() == 200) {
             String parsedData = ConnectionHelper.parseString(connection);
-            oldRide.setData(parsedData);
-            int i = bookedRides.indexOf(oldRide);
-            loadedRides.add(bookedRides.remove(i));
+            ride.setData(parsedData);
+            ride.setState(State.LOADED);
         }
 
-        sendGetRideRequestData(oldRide);
+        sendGetRideRequestData(ride);
 
 
 
@@ -88,23 +86,23 @@ public class ClientMock extends ClientServlet  {
      * # send GET (Ride)(Request)(Data)
      */
     @Override
-    void sendGetRideRequestData(Ride oldRide) throws IOException {
+    void sendGetRideRequestData(Ride ride) throws IOException {
 
         HttpURLConnection connection = ConnectionHelper.make("GET", MISP_BRIDGE_URL);
 
         // send GET (Ride)(Request)(Data)
         connection.setDoOutput(true);
         DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-        outputStream.writeBytes(oldRide.json());
+        outputStream.writeBytes(ride.json());
         outputStream.flush();
         outputStream.close();
 
-        // handle OK (EOL)
+        // handle OK (Ride)
         // remove Ride from LoadedRides
         if (connection.getResponseCode() == 200) {
             Ride shellIdRide = ConnectionHelper.parseRide(connection);
-            if (shellIdRide.getRideID() != null) {
-                loadedRides.remove(oldRide);
+            if (shellIdRide.getID() != null) {
+                rideMap.remove(ride.getID());
             }
         }
     }

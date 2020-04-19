@@ -6,15 +6,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BridgeServlet extends HttpServlet {
 
     protected static final String MISP_CLIENT_URL = "http://localhost:9090/mispclient/core";
 
-    public List<Ride> availableRides = new ArrayList<>();
-    public List<Ride> bookedRides = new ArrayList<>();
-    protected List<Ride> loadedRides = new ArrayList<>();
+    public Map<Long, Ride> rideMap = new HashMap<>();
+    protected RideMapHelper mapHelper = new RideMapHelper(rideMap);
 
     // #######
     //
@@ -40,7 +41,13 @@ public class BridgeServlet extends HttpServlet {
             boolean hasData = ridePayload.getData() != null;
 
             if (hasReqeust && hasData) {
-                Thread handleGetRideRequestDataThread = new Thread(() -> handleGetRideRequestData(request, response));
+                Thread handleGetRideRequestDataThread = new Thread(() -> {
+                    try {
+                        handleGetRideRequestData(request, response);
+                    } catch (IOException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                });
                 handleGetRideRequestDataThread.start();
             }
         }

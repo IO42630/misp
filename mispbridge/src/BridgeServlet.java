@@ -13,8 +13,8 @@ public class BridgeServlet extends HttpServlet {
     protected static final String MISP_CLIENT_URL = "http://localhost:9090/mispclient/core";
 
     public List<Ride> availableRides = new ArrayList<>();
-    public List<Ride> deliveredRides = new ArrayList<>();
-    protected List<Ride> deliveredData = new ArrayList<>();
+    public List<Ride> bookedRides = new ArrayList<>();
+    protected List<Ride> loadedRides = new ArrayList<>();
 
     // #######
     //
@@ -71,7 +71,7 @@ public class BridgeServlet extends HttpServlet {
      * remove Ride from ForwardedData
      * add Ride to EOL
      */
-    protected void handleGetRideRequestData(HttpServletRequest request, HttpServletResponse response) {
+    protected void handleGetRideRequestData(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
         // # send OK (EOL)
     }
 

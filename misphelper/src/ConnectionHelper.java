@@ -19,11 +19,15 @@ public class ConnectionHelper {
 
 
     public static Ride parseRide(HttpURLConnection connection) throws IOException {
+        return new Ride(parseString(connection));
+    }
+
+    public static String parseString(HttpURLConnection connection) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String out;
         StringBuilder sb = new StringBuilder();
         while ((out = in.readLine()) != null) { sb.append(out); }
         in.close();
-        return new Ride(sb.toString());
+        return sb.toString();
     }
 }

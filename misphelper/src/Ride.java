@@ -17,8 +17,8 @@ public class Ride {
         rideID = "" + count++;
     }
 
-    public Ride(String json){
-        json = json.replace("{","").replace("}","");
+    public Ride(String json) {
+        json = json.replace("{", "").replace("}", "");
         String[] split = json.split(",");
         rideID = split[0].split(":")[1];
         request = split[1].split(":")[1];
@@ -26,51 +26,50 @@ public class Ride {
     }
 
 
-
-
     public void setRequest(String request) {
         this.request = request;
     }
 
-    public void setData(String data){
+    public void setData(String data) {
         this.data = data;
     }
 
-    public String getRequest(){
+    public String getRequest() {
         return this.request;
     }
 
-    public String getData(){
+    public String getData() {
         return this.data;
     }
 
-    public String getRideID(){
+    public String getRideID() {
         return this.rideID;
     }
 
-    private String brace(String foo){
-        return "\""+foo+"\"";
+    private String brace(String foo) {
+        return "\"" + foo + "\"";
     }
 
-    public String json(){
-        String[] keys = {"rideID", "request", "data"};
-        String[] values = { rideID, request, data};
+    public String json() {
+        String[] keys = {"rideID",
+                         "request",
+                         "data"};
+        String[] values = {rideID,
+                           request,
+                           data};
         StringBuilder sb = new StringBuilder();
         sb.append("{");
-        for (int i =0; i<keys.length; i++){
+        for (int i = 0; i < keys.length; i++) {
             sb.append(brace(keys[i]));
             sb.append(":");
             sb.append(brace(values[i]));
-            if (i+1 < keys.length){
+            if (i + 1 < keys.length) {
                 sb.append(",");
             }
         }
         sb.append("}");
         return sb.toString();
     }
-
-
-
 
 
     @Override

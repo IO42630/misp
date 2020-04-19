@@ -28,7 +28,7 @@ public class BridgeServlet extends HttpServlet {
 
         String jsonPayload = IOUtils.toString(request.getReader());
 
-        if (jsonPayload.contains("LINK")) {
+        if (jsonPayload.contains("REQUEST")) {
             Thread handleGetLinkThread = new Thread(() -> {
                 try {
                     handleGetRequest(request, response);

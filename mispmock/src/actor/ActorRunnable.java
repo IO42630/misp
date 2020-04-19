@@ -18,7 +18,6 @@ public abstract class ActorRunnable implements Runnable {
 
 
     List<ExchangeMock> exchanges = new ArrayList<>();
-    List<HttpServletRequest> requests = new ArrayList<>();
 
     protected MockSet mockSet;
 
@@ -33,31 +32,17 @@ public abstract class ActorRunnable implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            if (requests.size() > 0) {
-                try {
-                    processRequests(requests.remove(0));
-
-                } catch (IOException | ServletException e) {
-                    e.printStackTrace();
-                }
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        //
     }
 
 
-    public void processRequests(HttpServletRequest request) throws IOException, ServletException {
+    public void processExchange(ExchangeMock exchange) throws IOException, ServletException {
 
 
-        if (request.getMethod().equalsIgnoreCase("GET")) {
-            doGet(request, null);
-        } else if (request.getMethod().equalsIgnoreCase("POST")) {
-            doPost(request, null);
+        if (exchange.request.getMethod().equalsIgnoreCase("GET")) {
+            doGet(exchange.request, exchange.response);
+        } else if (exchange.request.getMethod().equalsIgnoreCase("POST")) {
+            doPost(exchange.request, exchange.response);
         }
     }
 

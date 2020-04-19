@@ -1,3 +1,11 @@
+package core;
+
+import actor.AppMock;
+import actor.UserMock;
+import core.BridgeRunnable;
+import core.ClientRunnable;
+import core.MockSet;
+
 public class Main {
 
 

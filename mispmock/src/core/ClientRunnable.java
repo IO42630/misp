@@ -1,4 +1,6 @@
+package core;
 
+import core.ClientMock;
 
 /**
  * Pass the MockSet.

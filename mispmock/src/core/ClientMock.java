@@ -1,3 +1,5 @@
+package core;
+
 import exchange.ExchangeMock;
 
 import javax.servlet.ServletException;
@@ -8,7 +10,7 @@ import java.net.HttpURLConnection;
 /**
  * Wraps a ClientServlet so it can be debugged easily, i.e. without running Tomcat.
  */
-public class ClientMock extends ClientServlet  {
+public class ClientMock extends ClientServlet {
 
     private MockSet mockSet;
 
@@ -55,7 +57,7 @@ public class ClientMock extends ClientServlet  {
     @Override
     void sendGetRequest(Ride ride) throws IOException {
 
-        HttpURLConnection connection = ConnectionHelper.make("GET", APP_URL);
+        HttpURLConnection connection = ConnectionHelper.make("GET", ClientServlet.APP_URL);
 
         // send GET (Request)
         connection.setDoOutput(true);
@@ -88,7 +90,7 @@ public class ClientMock extends ClientServlet  {
     @Override
     void sendGetRideRequestData(Ride ride) throws IOException {
 
-        HttpURLConnection connection = ConnectionHelper.make("GET", MISP_BRIDGE_URL);
+        HttpURLConnection connection = ConnectionHelper.make("GET", ClientServlet.MISP_BRIDGE_URL);
 
         // send GET (Ride)(Request)(Data)
         connection.setDoOutput(true);

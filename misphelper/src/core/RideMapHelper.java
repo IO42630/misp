@@ -1,9 +1,12 @@
-import java.util.List;
+package core;
+
+import core.Ride;
+
 import java.util.Map;
 
 public class RideMapHelper {
 
-    public Map<Long,Ride> rideMap;
+    public Map<Long, Ride> rideMap;
 
 
     RideMapHelper(Map<Long,Ride> rideMap){

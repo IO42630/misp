@@ -1,13 +1,19 @@
+package actor;
+
+import actor.ActorRunnable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class UserMock extends ActorRunnable {
+import core.MockSet;
 
+public class AppMock extends ActorRunnable {
 
-    public UserMock(MockSet mockSet){
+    public AppMock(MockSet mockSet){
         super(mockSet);
     }
+
 
     @Override
     public void run() {
@@ -16,6 +22,10 @@ public class UserMock extends ActorRunnable {
 
     @Override
     void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+
+
+        //Main.clientRunnable.responses.add(mockResponse);
 
     }
 

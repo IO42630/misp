@@ -1,3 +1,5 @@
+package core;
+
 import exchange.ExchangeMock;
 import exchange.RequestMock;
 import org.apache.commons.io.IOUtils;
@@ -154,7 +156,7 @@ public class BridgeMock extends BridgeServlet {
             synchronized (ride) {
                 rideMap.put(ride.getID(), ride.setState(State.AVAILABLE));
 
-                while (ride.getState()==State.AVAILABLE) {
+                while (ride.getState() == State.AVAILABLE) {
                     ride.notify();
                     Thread.sleep(100);
                     ride.wait();

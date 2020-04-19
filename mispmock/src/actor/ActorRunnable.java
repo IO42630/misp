@@ -1,4 +1,4 @@
-
+package actor;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import core.MockSet;
+import exchange.ExchangeMock;
+
 /**
  * Generic Runnable.
  * Serves as basis for Actors that are not Servlets.
@@ -14,7 +17,7 @@ import java.util.List;
 public abstract class ActorRunnable implements Runnable {
 
 
-    List<HttpServletResponse> responses = new ArrayList<>();
+    List<ExchangeMock> exchanges = new ArrayList<>();
     List<HttpServletRequest> requests = new ArrayList<>();
 
     protected MockSet mockSet;

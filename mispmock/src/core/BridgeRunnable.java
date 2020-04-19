@@ -1,4 +1,6 @@
+package core;
 
+import core.BridgeMock;
 
 /**
  * Pass the MockSet.

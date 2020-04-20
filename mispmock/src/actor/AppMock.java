@@ -1,5 +1,6 @@
 package actor;
 
+import core.Main;
 import core.MockSet;
 import exchange.ExchangeMock;
 import exchange.RequestMock;
@@ -23,7 +24,7 @@ public class AppMock extends ActorRunnable {
     public void run() {
         while (true) {
             try {
-                Thread.sleep(100);
+                Thread.sleep(Main.MOCK_SPEED);
 
             } catch (InterruptedException e) {
                 e.printStackTrace();

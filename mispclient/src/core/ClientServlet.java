@@ -16,7 +16,7 @@ public class ClientServlet extends HttpServlet {
     protected static final String MISP_BRIDGE_URL = "http://localhost:9090/mispbridge/core";
     protected static final String APP_URL = "http://localhost:9090";
 
-    public static final int AVAILABLE_RIDES_OVERHEAD = 1;
+    public static final int AVAILABLE_RIDES_OVERHEAD = 512;
 
 
 
@@ -138,7 +138,7 @@ class PostRideRunnable implements Runnable {
             if (availableRides< ClientServlet.AVAILABLE_RIDES_OVERHEAD) {
                 try {clientServlet.sendPostRide(new Ride());} catch (IOException | ServletException | InterruptedException e) { e.printStackTrace(); }
             }
-            try {Thread.sleep(500);} catch (InterruptedException e) { e.printStackTrace(); }
+            try {Thread.sleep(100);} catch (InterruptedException e) { e.printStackTrace(); }
         }
     }
 }

@@ -7,10 +7,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
-import core.ConnectionHelper;
-import core.MockSet;
-import core.Ride;
-import core.State;
+import core.*;
 import exchange.ExchangeMock;
 
 public class UserMock extends ActorRunnable {
@@ -26,7 +23,7 @@ public class UserMock extends ActorRunnable {
     public void run() {
         while (true){
             try {
-                Thread.sleep(1000);
+                Thread.sleep(Main.MOCK_SPEED);
                 sendGetRequest();
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();

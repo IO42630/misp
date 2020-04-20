@@ -1,7 +1,5 @@
 package core;
 
-import core.BridgeMock;
-
 /**
  * Pass the MockSet.
  * Provide a Runnable.

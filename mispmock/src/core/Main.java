@@ -2,13 +2,10 @@ package core;
 
 import actor.AppMock;
 import actor.UserMock;
-import core.BridgeRunnable;
-import core.ClientRunnable;
-import core.MockSet;
 
 public class Main {
 
-
+    final public static int MOCK_SPEED = 0;
 
 
 
@@ -34,8 +31,6 @@ public class Main {
         clientThread.start();
         appThread.setName("appThread");
         appThread.start();
-
-        int br =0;
     }
 }
 

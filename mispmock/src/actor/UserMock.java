@@ -20,7 +20,7 @@ public class UserMock extends ActorRunnable {
     public void run() {
         while (true){
             try {
-                Thread.sleep(Main.REQUEST_SPEED);
+                Thread.sleep(Main.WAIT_SPEED);
                 sendGetRequest();
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
@@ -51,7 +51,7 @@ public class UserMock extends ActorRunnable {
         ExchangeMock exchange = new ExchangeMock();
 
         exchange.request.setMethod("GET");
-        exchange.request.setContentType("application/json");
+        //exchange.request.setContentType("application/json");
         String requestBody = "REQUEST-"+(++requestCount);
         String jsonString = "{\"request\":\""+requestBody+ "\"}";
         exchange.request.setContent(jsonString.getBytes());

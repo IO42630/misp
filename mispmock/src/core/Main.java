@@ -6,7 +6,6 @@ import actor.UserMock;
 public class Main {
 
     final public static int WAIT_SPEED = 10;
-    final public static int REQUEST_SPEED = 1;
 
 
 

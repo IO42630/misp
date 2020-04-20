@@ -28,10 +28,10 @@ public class BridgeMock extends BridgeServlet {
     @Override
     protected void handleGetRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
 
-        RequestMock mockRequest = (RequestMock) request;
-        ExchangeMock exchange = mockRequest.exchange;
+        ExchangeMock exchange;
+        Ride ride = null;
 
-        synchronized (exchange) {
+        synchronized (exchange = ((RequestMock) request).exchange) {
             String parsedRequest = IOUtils.toString(request.getReader());
             JSONObject obj = new JSONObject(parsedRequest);
             parsedRequest = obj.getString("request");
@@ -39,30 +39,35 @@ public class BridgeMock extends BridgeServlet {
 
             synchronized (rideMap) {
 
+                // TODO make 3 maps
                 while (mapHelper.containsLess(1, State.AVAILABLE)) { Thread.sleep(Main.WAIT_SPEED); }
-                Ride ride = null;
-
                 while (ride == null) {
                     ride = mapHelper.pickAvailable();
                     Thread.sleep(Main.WAIT_SPEED);
                 }
 
-                ride.setRequest(parsedRequest);
-                ride.setState(State.BOOKED);
 
-                while (ride.getState() != State.LOADED) {
-                    rideMap.notify();
-                    Thread.sleep(Main.WAIT_SPEED);
-                    rideMap.wait();
-                }
 
-                rideMap.remove(ride.getID());
+                    
 
-                exchange.response.setStatus(200);
-                PrintWriter writer = exchange.response.getWriter();
-                writer.write(ride.getData());
-                writer.flush();
-                writer.close();
+                    ride.setRequest(parsedRequest);
+                    ride.setState(State.BOOKED);
+
+                    while (ride.getState() != State.LOADED) {
+                        rideMap.notify();
+                        Thread.sleep(Main.WAIT_SPEED);
+                        rideMap.wait();
+                    }
+
+                    rideMap.remove(ride.getID());
+
+                    exchange.response.setStatus(200);
+                    PrintWriter writer = exchange.response.getWriter();
+                    writer.write(ride.getData());
+                    writer.flush();
+                    writer.close();
+                    
+
 
                 rideMap.notify();
             }
@@ -86,33 +91,33 @@ public class BridgeMock extends BridgeServlet {
      */
     protected void handleGetRideRequestData(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
 
-        RequestMock mockRequest = (RequestMock) request;
-        ExchangeMock exchange = mockRequest.exchange;
+        ExchangeMock exchange;
+        Ride thisRide;
 
-        synchronized (exchange) {
+        synchronized (exchange = ((RequestMock) request).exchange) {
+
             String jsonPayload = IOUtils.toString(request.getReader());
             Ride parsedRide = new Ride(jsonPayload);
 
-
             synchronized (rideMap) {
-                Ride thisRide = rideMap.get(parsedRide.getID());
-                thisRide.setData(parsedRide.getData());
-                thisRide.setState(State.LOADED);
 
-                exchange.response.setStatus(200);
-                PrintWriter writer = response.getWriter();
-                writer.write(thisRide.json());
-                writer.flush();
-                writer.close();
+                synchronized (thisRide = rideMap.get(parsedRide.getID())) {
 
+                    thisRide.setData(parsedRide.getData());
+                    thisRide.setState(State.LOADED);
 
-                if (thisRide.getID() == 100000L) {
-                    int br = 0;
+                    exchange.response.setStatus(200);
+                    PrintWriter writer = response.getWriter();
+                    writer.write(thisRide.json());
+                    writer.flush();
+                    writer.close();
+
+                    rideMap.remove(thisRide.getID());
+                    thisRide.notify();
                 }
                 rideMap.notify();
             }
             exchange.notify();
-            //rideMap.remove(thisRide.getID());
         }
     }
 
@@ -125,27 +130,34 @@ public class BridgeMock extends BridgeServlet {
     @Override
     protected void handlePostRide(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
 
-        RequestMock mockRequest = (RequestMock) request;
-        ExchangeMock exchange = mockRequest.exchange;
+        ExchangeMock exchange;
+        Ride ride;
 
-        synchronized (exchange) {
+        synchronized (exchange = ((RequestMock) request).exchange) {
+
             String jsonPayload = IOUtils.toString(request.getReader());
-
+            ride = new Ride(jsonPayload);
 
             synchronized (rideMap) {
-                Ride ride = new Ride(jsonPayload);
+
                 rideMap.put(ride.getID(), ride.setState(State.AVAILABLE));
 
-                while (ride.getState() == State.AVAILABLE) {
-                    rideMap.notify();
-                    Thread.sleep(Main.WAIT_SPEED);
-                    rideMap.wait();
+                synchronized (ride = rideMap.get(ride.getID())) {
+
+                    while (ride.getState() == State.AVAILABLE) {
+                        rideMap.notify();
+                        Thread.sleep(Main.WAIT_SPEED);
+                        rideMap.wait();
+                    }
+
+                    exchange.response.setStatus(200);
+                    PrintWriter writer = response.getWriter();
+                    writer.write(ride.json());
+                    writer.flush();
+                    writer.close();
+
+                    ride.notify();
                 }
-                exchange.response.setStatus(200);
-                PrintWriter writer = response.getWriter();
-                writer.write(ride.json());
-                writer.flush();
-                writer.close();
                 rideMap.notify();
             }
             exchange.notify();

@@ -24,7 +24,7 @@ public class AppMock extends ActorRunnable {
     public void run() {
         while (true) {
             try {
-                Thread.sleep(Main.REQUEST_SPEED);
+                Thread.sleep(Main.WAIT_SPEED);
 
             } catch (InterruptedException e) {
                 e.printStackTrace();

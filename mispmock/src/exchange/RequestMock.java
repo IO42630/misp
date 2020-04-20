@@ -15,7 +15,7 @@ import java.util.Collection;
  */
 public class RequestMock extends MockHttpServletRequest implements HttpServletRequest {
 
-    public ExchangeMock exchange;
+    public final ExchangeMock exchange;
 
     public RequestMock(ExchangeMock exchange){
         super();

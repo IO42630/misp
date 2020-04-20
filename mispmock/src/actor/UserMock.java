@@ -9,18 +9,30 @@ import exchange.ExchangeMock;
 
 public class UserMock extends ActorRunnable {
 
+
+
+    final String longRequest;
+
     int requestCount = 0;
 
     public UserMock(MockSet mockSet){
         super(mockSet);
         mockSet.userMock = this;
+
+
+        StringBuilder sb = new StringBuilder();
+        for (int i=0;i<100;i++){
+            sb.append("foo");
+        }
+        longRequest = sb.toString();
+
+
     }
 
     @Override
     public void run() {
         while (true){
             try {
-                Thread.sleep(Main.WAIT_SPEED);
                 sendGetRequest();
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
@@ -52,6 +64,8 @@ public class UserMock extends ActorRunnable {
 
         exchange.request.setMethod("GET");
         //exchange.request.setContentType("application/json");
+
+        //String requestBody = longRequest+"-"+(++requestCount);
         String requestBody = "REQUEST-"+(++requestCount);
         String jsonString = "{\"request\":\""+requestBody+ "\"}";
         exchange.request.setContent(jsonString.getBytes());
@@ -64,7 +78,7 @@ public class UserMock extends ActorRunnable {
 
             // handle OK (Data)
             String data = exchange.response.getContentAsString();
-            System.out.println(data + " of REQUEST-"+requestCount);
+            System.out.println(data + " of "+requestBody);
             exchange.notify();
         }
     }

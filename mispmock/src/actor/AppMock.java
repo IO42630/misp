@@ -23,12 +23,7 @@ public class AppMock extends ActorRunnable {
     @Override
     public void run() {
         while (true) {
-            try {
-                Thread.sleep(Main.WAIT_SPEED);
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
         }
     }

@@ -40,7 +40,6 @@ public class BridgeMock extends BridgeServlet {
 
                 while (available.size() < 1) {
                     available.notify();
-                    Thread.sleep(Main.WAIT_SPEED);
                     available.wait();
                 }
                 // ride exists only locally, thus safe
@@ -64,7 +63,6 @@ public class BridgeMock extends BridgeServlet {
 
                 while (!loaded.containsKey(ride.getID())) {
                     loaded.notify();
-                    Thread.sleep(Main.WAIT_SPEED);
                     loaded.wait();
                 }
 
@@ -145,7 +143,7 @@ public class BridgeMock extends BridgeServlet {
 
             // ID is final/threadsafe
             while(!(booked.containsKey(ride.getID()))){
-                Thread.sleep(Main.WAIT_SPEED);
+
             }
 
             synchronized (booked) {

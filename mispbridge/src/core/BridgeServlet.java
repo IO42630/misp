@@ -1,12 +1,14 @@
 package core;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,8 +66,54 @@ public class BridgeServlet extends HttpServlet {
      * send OK (Ride) to public
      */
     protected void handleGetRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
-        // # send OK (Ride) to public
-    }
+        final Ride ride;
+        String parsedRequest = IOUtils.toString(request.getReader());
+        final JSONObject obj = new JSONObject(parsedRequest);
+        parsedRequest = obj.getString("request");
+
+        synchronized (available) {
+
+            while (available.size() < 1) {
+                available.notify();
+                available.wait();
+            }
+            // ride exists only locally, thus safe
+            ride = available.entrySet().iterator().next().getValue();
+            // ride exists only in "available", access through which is sync, thus safe
+            available.remove(ride.getID());
+            // needed because POST (Ride) wait()s
+            available.notify();
+        }
+
+        synchronized (booked) {
+            // ride exists only locally, thus safe
+            booked.put(ride.getID(), ride);
+            // ride exists only in "booked", access through which is sync, thus safe
+            ride.setRequest(parsedRequest);
+            // POST (Ride) wait()s
+            booked.notify();
+        }
+
+        synchronized (loaded) {
+
+            while (!loaded.containsKey(ride.getID())) {
+                loaded.notify();
+                loaded.wait();
+            }
+
+
+            // CARE this is tricky
+            // what if ride exists in another map, e.g. "available'
+            // in that case illegal access is possible
+            // be carefull to removing ride from all other references, when adding it to "loaded".
+            ride.setData(loaded.remove(ride.getID()).getData());
+        }
+
+        response.setStatus(200);
+        final PrintWriter writer = response.getWriter();
+        writer.write(ride.getData());
+        writer.flush();
+        writer.close();    }
 
 
     /**
@@ -81,7 +129,17 @@ public class BridgeServlet extends HttpServlet {
      * add Ride to EOL
      */
     protected void handleGetRideRequestData(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
-        // # send OK (EOL)
+        final String jsonPayload = IOUtils.toString(request.getReader());
+        final Ride ride = new Ride(jsonPayload);
+
+        synchronized (booked) {
+            booked.remove(ride.getID());
+        }
+
+        synchronized (loaded) {
+            loaded.put(ride.getID(), ride);
+            loaded.notify();
+        }
     }
 
     // #######
@@ -103,6 +161,29 @@ public class BridgeServlet extends HttpServlet {
      * add Ride to AvailableRides
      */
     protected void handlePostRide(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
-        // # send OK (Ride) to mispclient
+        String jsonPayload = IOUtils.toString(request.getReader());
+        final Ride ride = new Ride(jsonPayload);
+
+        synchronized (available) {
+            available.put(ride.getID(), ride);
+            available.notify();
+        }
+
+        // ID is final/threadsafe
+        while(!(booked.containsKey(ride.getID()))){
+
+        }
+
+        synchronized (booked) {
+            //booked.notify();
+            //booked.wait();
+            ride.setRequest(booked.get(ride.getID()).getRequest());
+        }
+
+        response.setStatus(200);
+        PrintWriter writer = response.getWriter();
+        writer.write(ride.json());
+        writer.flush();
+        writer.close();
     }
 }

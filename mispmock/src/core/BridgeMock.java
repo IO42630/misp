@@ -28,51 +28,61 @@ public class BridgeMock extends BridgeServlet {
     @Override
     protected void handleGetRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
 
-        ExchangeMock exchange;
-        Ride ride = null;
+        final ExchangeMock exchange;
+        final Ride ride;
 
         synchronized (exchange = ((RequestMock) request).exchange) {
             String parsedRequest = IOUtils.toString(request.getReader());
-            JSONObject obj = new JSONObject(parsedRequest);
+            final JSONObject obj = new JSONObject(parsedRequest);
             parsedRequest = obj.getString("request");
 
+            synchronized (available) {
 
-            synchronized (rideMap) {
-
-                // TODO make 3 maps
-                while (mapHelper.containsLess(1, State.AVAILABLE)) { Thread.sleep(Main.WAIT_SPEED); }
-                while (ride == null) {
-                    ride = mapHelper.pickAvailable();
+                while (available.size() < 1) {
+                    available.notify();
                     Thread.sleep(Main.WAIT_SPEED);
+                    available.wait();
+                }
+                // ride exists only locally, thus safe
+                ride = available.entrySet().iterator().next().getValue();
+                // ride exists only in "available", access through which is sync, thus safe
+                available.remove(ride.getID());
+                // needed because POST (Ride) wait()s
+                available.notify();
+            }
+
+            synchronized (booked) {
+                // ride exists only locally, thus safe
+                booked.put(ride.getID(), ride);
+                // ride exists only in "booked", access through which is sync, thus safe
+                ride.setRequest(parsedRequest);
+                // POST (Ride) wait()s
+                booked.notify();
+            }
+
+            synchronized (loaded) {
+
+                while (!loaded.containsKey(ride.getID())) {
+                    loaded.notify();
+                    Thread.sleep(Main.WAIT_SPEED);
+                    loaded.wait();
                 }
 
 
-
-                    
-
-                    ride.setRequest(parsedRequest);
-                    ride.setState(State.BOOKED);
-
-                    while (ride.getState() != State.LOADED) {
-                        rideMap.notify();
-                        Thread.sleep(Main.WAIT_SPEED);
-                        rideMap.wait();
-                    }
-
-                    rideMap.remove(ride.getID());
-
-                    exchange.response.setStatus(200);
-                    PrintWriter writer = exchange.response.getWriter();
-                    writer.write(ride.getData());
-                    writer.flush();
-                    writer.close();
-                    
-
-
-                rideMap.notify();
+                // WIP this is tricky
+                // what if ride exists in another map, e.g. "available'
+                // in that case illegal access is possible
+                // be carefull to removing ride from all other references, when adding it to "loaded".
+                ride.setData(loaded.remove(ride.getID()).getData());
             }
-            exchange.notify();
 
+            exchange.response.setStatus(200);
+            final PrintWriter writer = exchange.response.getWriter();
+            writer.write(ride.getData());
+            writer.flush();
+            writer.close();
+
+            exchange.notify();
         }
     }
 
@@ -91,34 +101,24 @@ public class BridgeMock extends BridgeServlet {
      */
     protected void handleGetRideRequestData(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
 
-        ExchangeMock exchange;
-        Ride thisRide;
+        final ExchangeMock exchange;
 
         synchronized (exchange = ((RequestMock) request).exchange) {
 
-            String jsonPayload = IOUtils.toString(request.getReader());
-            Ride parsedRide = new Ride(jsonPayload);
+            final String jsonPayload = IOUtils.toString(request.getReader());
+            final Ride ride = new Ride(jsonPayload);
 
-            synchronized (rideMap) {
+            synchronized (booked) {
+                booked.remove(ride.getID());
+            }
 
-                synchronized (thisRide = rideMap.get(parsedRide.getID())) {
-
-                    thisRide.setData(parsedRide.getData());
-                    thisRide.setState(State.LOADED);
-
-                    exchange.response.setStatus(200);
-                    PrintWriter writer = response.getWriter();
-                    writer.write(thisRide.json());
-                    writer.flush();
-                    writer.close();
-
-                    rideMap.remove(thisRide.getID());
-                    thisRide.notify();
-                }
-                rideMap.notify();
+            synchronized (loaded) {
+                loaded.put(ride.getID(), ride);
+                loaded.notify();
             }
             exchange.notify();
         }
+
     }
 
 
@@ -130,36 +130,36 @@ public class BridgeMock extends BridgeServlet {
     @Override
     protected void handlePostRide(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
 
-        ExchangeMock exchange;
-        Ride ride;
+        final ExchangeMock exchange;
+
 
         synchronized (exchange = ((RequestMock) request).exchange) {
 
             String jsonPayload = IOUtils.toString(request.getReader());
-            ride = new Ride(jsonPayload);
+            final Ride ride = new Ride(jsonPayload);
 
-            synchronized (rideMap) {
-
-                rideMap.put(ride.getID(), ride.setState(State.AVAILABLE));
-
-                synchronized (ride = rideMap.get(ride.getID())) {
-
-                    while (ride.getState() == State.AVAILABLE) {
-                        rideMap.notify();
-                        Thread.sleep(Main.WAIT_SPEED);
-                        rideMap.wait();
-                    }
-
-                    exchange.response.setStatus(200);
-                    PrintWriter writer = response.getWriter();
-                    writer.write(ride.json());
-                    writer.flush();
-                    writer.close();
-
-                    ride.notify();
-                }
-                rideMap.notify();
+            synchronized (available) {
+                available.put(ride.getID(), ride);
+                available.notify();
             }
+
+            // ID is final/threadsafe
+            while(!(booked.containsKey(ride.getID()))){
+                Thread.sleep(Main.WAIT_SPEED);
+            }
+
+            synchronized (booked) {
+                //booked.notify();
+                //booked.wait();
+                ride.setRequest(booked.get(ride.getID()).getRequest());
+            }
+
+            exchange.response.setStatus(200);
+            PrintWriter writer = response.getWriter();
+            writer.write(ride.json());
+            writer.flush();
+            writer.close();
+
             exchange.notify();
         }
     }

@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-
-
 public class ClientServlet extends HttpServlet {
 
     protected static final String MISP_BRIDGE_URL = "http://localhost:9090/mispbridge/core";
@@ -20,8 +18,10 @@ public class ClientServlet extends HttpServlet {
     public static final int AVAILABLE_RIDES_OVERHEAD = 32;
 
 
-    public final Map<Long, Ride> rideMap = new HashMap<>();
-    protected RideMapHelper mapHelper = new RideMapHelper(rideMap);
+    public final Map<Long, Ride> available = new HashMap<>();
+    public final Map<Long, Ride> booked = new HashMap<>();
+    public final Map<Long, Ride> loaded = new HashMap<>();
+
 
     public ClientServlet() {
 
@@ -41,8 +41,7 @@ public class ClientServlet extends HttpServlet {
         HttpURLConnection connection = ConnectionHelper.make("POST", MISP_BRIDGE_URL);
 
         // send POST (Ride)
-
-        rideMap.put(ride.getID(), ride.setState(State.AVAILABLE));
+        available.put(ride.getID(), ride);
         connection.setDoOutput(true);
         DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
         outputStream.writeBytes(ride.json());
@@ -59,7 +58,6 @@ public class ClientServlet extends HttpServlet {
             }
         }
     }
-
 
 
     /**
@@ -100,7 +98,7 @@ public class ClientServlet extends HttpServlet {
         if (connection.getResponseCode() == 200) {
             Ride shellIdRide = ConnectionHelper.parseRide(connection);
             if (shellIdRide.getID() != null) {
-                rideMap.remove(oldRide.getID());
+                loaded.remove(oldRide.getID());
             }
         }
     }
@@ -125,18 +123,8 @@ class PostRideRunnable implements Runnable {
     @Override
     public void run() {
         while (true) {
-
-            long availableRides = 0L;
-            for (Map.Entry<Long,Ride> entry : clientServlet.rideMap.entrySet()){
-                if (entry.getValue().getState() == State.AVAILABLE){
-                    availableRides++;
-                }
-            }
-
-
-
-            if (availableRides< ClientServlet.AVAILABLE_RIDES_OVERHEAD_TRIGGER) {
-                for (int i=0; i<ClientServlet.AVAILABLE_RIDES_OVERHEAD;i++) {
+            if (clientServlet.available.size() < ClientServlet.AVAILABLE_RIDES_OVERHEAD_TRIGGER) {
+                for (int i = 0; i < ClientServlet.AVAILABLE_RIDES_OVERHEAD; i++) {
                     try {clientServlet.sendPostRide(new Ride());} catch (IOException | ServletException | InterruptedException e) { e.printStackTrace(); }
                 }
             }

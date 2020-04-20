@@ -24,11 +24,16 @@ public class ClientMock extends ClientServlet {
     @Override
     void sendPostRide(Ride ride) throws IOException, ServletException, InterruptedException {
 
-        rideMap.put(ride.getID(), ride.setState(State.AVAILABLE));
+
+
+
+        synchronized (available){
+            available.put(ride.getID(),ride);
+        }
+
 
         // Mock Exchange
-        ExchangeMock exchange = new ExchangeMock();
-
+        final ExchangeMock exchange = new ExchangeMock();
         exchange.request.setMethod("POST");
         exchange.request.setContentType("application/json");
         exchange.request.setContent(ride.json().getBytes());
@@ -45,7 +50,8 @@ public class ClientMock extends ClientServlet {
 
             exchange.notify();
         }
-        ride.setState(State.BOOKED);
+        available.remove(ride.getID());
+        booked.put(ride.getID(),ride);
         sendGetRequest(ride);
     }
 
@@ -74,7 +80,8 @@ public class ClientMock extends ClientServlet {
             ride.setData(parsedRide.getData());
             exchange.notify();
         }
-        ride.setState(State.LOADED);
+        booked.remove(ride.getID());
+        loaded.put(ride.getID(),ride);
         sendGetRideRequestData(ride);
     }
 
@@ -100,7 +107,7 @@ public class ClientMock extends ClientServlet {
 
             // handle OK (Ride)
             Ride parsedRide = new Ride(exchange.response.getContentAsString());
-            rideMap.remove(parsedRide.getID());
+            loaded.remove(parsedRide.getID());
             exchange.notify();
         }
     }

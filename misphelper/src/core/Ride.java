@@ -9,7 +9,7 @@ public class Ride {
 
     private static long count = 0L;
 
-    private Long id;
+    final private Long id;
     private String request;
     private String data;
     private State state;
@@ -24,6 +24,7 @@ public class Ride {
     }
 
     public Ride(String jsonString) {
+
         JSONObject obj = new JSONObject();
         try {
             obj = new JSONObject(jsonString);
@@ -32,13 +33,14 @@ public class Ride {
         }
 
 
-
+        Long _id;
 
         try {
-            id = obj.getLong("id");
+            _id = obj.getLong("id");
         }catch (JSONException e){
-            id = count++;
+            _id = count++;
         }
+        id = _id;
         try{
             request = obj.getString("request");
         } catch (JSONException e){

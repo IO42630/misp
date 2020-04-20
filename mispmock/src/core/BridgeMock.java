@@ -29,7 +29,7 @@ public class BridgeMock extends BridgeServlet {
     protected void handleGetRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
 
         final ExchangeMock exchange;
-        
+
         synchronized (exchange = ((RequestMock) request).exchange) {
 
             super.handleGetRequest(request,response);

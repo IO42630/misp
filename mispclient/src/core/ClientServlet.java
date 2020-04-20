@@ -20,7 +20,7 @@ public class ClientServlet extends HttpServlet {
     public static final int AVAILABLE_RIDES_OVERHEAD = 32;
 
 
-    public Map<Long, Ride> rideMap = new HashMap<>();
+    public final Map<Long, Ride> rideMap = new HashMap<>();
     protected RideMapHelper mapHelper = new RideMapHelper(rideMap);
 
     public ClientServlet() {

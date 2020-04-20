@@ -1,5 +1,6 @@
 #### TODO
 
+* FIX errors when setting WAIT to low.
 * In `ClientMock` put `GET (Ride)(Request)(Data)` on it's own thread.
     * Currently it is on the `POST (Ride)` thread.
     * It would be better to "decouple" it.

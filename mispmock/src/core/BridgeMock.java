@@ -36,25 +36,24 @@ public class BridgeMock extends BridgeServlet {
             JSONObject obj = new JSONObject(parsedRequest);
             parsedRequest = obj.getString("request");
 
-            while (mapHelper.containsLess(1, State.AVAILABLE)) { Thread.sleep(Main.MOCK_SPEED); }
 
+            synchronized (rideMap) {
 
-            Ride ride = null;
-            for (int i = 0; ride ==null; i++){
-                ride = mapHelper.pickAvailable();
-                if (i!=0){
-                Thread.sleep(Main.MOCK_SPEED);}
-            }
+                while (mapHelper.containsLess(1, State.AVAILABLE)) { Thread.sleep(Main.WAIT_SPEED); }
+                Ride ride = null;
 
+                while (ride == null) {
+                    ride = mapHelper.pickAvailable();
+                    Thread.sleep(Main.WAIT_SPEED);
+                }
 
-            synchronized (ride) {
                 ride.setRequest(parsedRequest);
                 ride.setState(State.BOOKED);
 
                 while (ride.getState() != State.LOADED) {
-                    ride.notify();
-                    Thread.sleep(Main.MOCK_SPEED);
-                    ride.wait();
+                    rideMap.notify();
+                    Thread.sleep(Main.WAIT_SPEED);
+                    rideMap.wait();
                 }
 
                 rideMap.remove(ride.getID());
@@ -65,9 +64,10 @@ public class BridgeMock extends BridgeServlet {
                 writer.flush();
                 writer.close();
 
-                ride.notify();
+                rideMap.notify();
             }
             exchange.notify();
+
         }
     }
 
@@ -92,9 +92,10 @@ public class BridgeMock extends BridgeServlet {
         synchronized (exchange) {
             String jsonPayload = IOUtils.toString(request.getReader());
             Ride parsedRide = new Ride(jsonPayload);
-            Ride thisRide = rideMap.get(parsedRide.getID());
 
-            synchronized (thisRide) {
+
+            synchronized (rideMap) {
+                Ride thisRide = rideMap.get(parsedRide.getID());
                 thisRide.setData(parsedRide.getData());
                 thisRide.setState(State.LOADED);
 
@@ -104,9 +105,14 @@ public class BridgeMock extends BridgeServlet {
                 writer.flush();
                 writer.close();
 
-                thisRide.notify();
+
+                if (thisRide.getID() == 100000L) {
+                    int br = 0;
+                }
+                rideMap.notify();
             }
             exchange.notify();
+            //rideMap.remove(thisRide.getID());
         }
     }
 
@@ -124,22 +130,23 @@ public class BridgeMock extends BridgeServlet {
 
         synchronized (exchange) {
             String jsonPayload = IOUtils.toString(request.getReader());
-            Ride ride = new Ride(jsonPayload);
 
-            synchronized (ride) {
+
+            synchronized (rideMap) {
+                Ride ride = new Ride(jsonPayload);
                 rideMap.put(ride.getID(), ride.setState(State.AVAILABLE));
 
                 while (ride.getState() == State.AVAILABLE) {
-                    ride.notify();
-                    Thread.sleep(Main.MOCK_SPEED);
-                    ride.wait();
+                    rideMap.notify();
+                    Thread.sleep(Main.WAIT_SPEED);
+                    rideMap.wait();
                 }
                 exchange.response.setStatus(200);
                 PrintWriter writer = response.getWriter();
                 writer.write(ride.json());
                 writer.flush();
                 writer.close();
-                ride.notify();
+                rideMap.notify();
             }
             exchange.notify();
         }

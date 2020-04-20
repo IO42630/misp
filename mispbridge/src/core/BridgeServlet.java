@@ -14,7 +14,7 @@ public class BridgeServlet extends HttpServlet {
 
     protected static final String MISP_CLIENT_URL = "http://localhost:9090/mispclient/core";
 
-    public Map<Long, Ride> rideMap = new HashMap<>();
+    public final Map<Long, Ride> rideMap = new HashMap<>();
     protected RideMapHelper mapHelper = new RideMapHelper(rideMap);
 
     // #######

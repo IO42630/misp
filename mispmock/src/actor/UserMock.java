@@ -1,11 +1,8 @@
 package actor;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 
 import core.*;
 import exchange.ExchangeMock;
@@ -23,7 +20,7 @@ public class UserMock extends ActorRunnable {
     public void run() {
         while (true){
             try {
-                Thread.sleep(Main.MOCK_SPEED);
+                Thread.sleep(Main.REQUEST_SPEED);
                 sendGetRequest();
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();

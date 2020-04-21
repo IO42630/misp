@@ -11,12 +11,12 @@
     </description>
 
     <servlet>
-        <servlet-name>ClientServlet</servlet-name>
-        <servlet-class>ClientServlet</servlet-class>
+        <servlet-name>BridgeServlet</servlet-name>
+        <servlet-class>core.BridgeServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>ClientServlet</servlet-name>
+        <servlet-name>BridgeServlet</servlet-name>
         <url-pattern>/core</url-pattern>
     </servlet-mapping>
 

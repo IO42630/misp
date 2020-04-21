@@ -36,7 +36,7 @@ public class AppMock extends ActorRunnable {
 
         synchronized (exchange) {
             String parsedRequest = IOUtils.toString(request.getReader());
-            
+
             String dataString = "DATA-" + parsedRequest.split("-")[1];
 
             exchange.response.setStatus(200);

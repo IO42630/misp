@@ -12,7 +12,7 @@ import java.util.Map;
 public class ClientServlet extends HttpServlet {
 
     protected static final String MISP_BRIDGE_URL = "http://localhost:9090/mispbridge/core";
-    protected static final String APP_URL = "http://localhost:9090";
+    protected static final String APP_URL = "http://www.google.ch";
 
     public static final int AVAILABLE_RIDES_OVERHEAD_TRIGGER = 32;
     public static final int AVAILABLE_RIDES_OVERHEAD = 64;

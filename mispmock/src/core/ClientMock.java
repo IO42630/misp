@@ -51,14 +51,13 @@ public class ClientMock extends ClientServlet {
      * Parse response.
      */
     @Override
-    protected Ride doSendGetRequest(Ride ride) throws IOException, InterruptedException {
+    protected String doSendGetRequest(String request) throws IOException, InterruptedException {
 
         // Mock Exchange
         final ExchangeMock exchange = new ExchangeMock();
 
         exchange.request.setMethod("GET");
-        exchange.request.setContentType("application/json");
-        exchange.request.setContent(ride.json().getBytes());
+        exchange.request.setContent(request.getBytes());
 
         synchronized (exchange) {
             // Mock GET (Request)
@@ -69,7 +68,7 @@ public class ClientMock extends ClientServlet {
             exchange.notify();
         }
 
-        return new Ride(exchange.response.getContentAsString());
+        return exchange.response.getContentAsString();
     }
 
 

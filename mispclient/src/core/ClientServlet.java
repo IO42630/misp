@@ -83,9 +83,8 @@ public class ClientServlet extends HttpServlet {
      */
     final void sendGetRequest(Ride ride) throws IOException, ServletException, InterruptedException {
 
-        Ride parsedRide = doSendGetRequest(ride);
 
-        ride.setData(parsedRide.getData());
+        ride.setData(doSendGetRequest(ride.getRequest()));
 
         synchronized (booked) {
             booked.remove(ride.getID());
@@ -102,18 +101,18 @@ public class ClientServlet extends HttpServlet {
      * Send GET (Request) to App.
      * Parse response.
      */
-    protected Ride doSendGetRequest(Ride ride) throws IOException, InterruptedException {
+    protected String doSendGetRequest(String request) throws IOException, InterruptedException {
 
         // send GET (Ride)
         final HttpURLConnection connection = ConnectionHelper.make("GET", APP_URL);
 
         connection.setDoOutput(true);
         DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
-        outputStream.writeBytes(ride.getRequest());
+        outputStream.writeBytes(request);
         outputStream.flush();
         outputStream.close();
 
-        return ConnectionHelper.parseRide(connection);
+        return ConnectionHelper.parseString(connection);
     }
 
 

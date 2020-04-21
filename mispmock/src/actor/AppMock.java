@@ -36,16 +36,12 @@ public class AppMock extends ActorRunnable {
 
         synchronized (exchange) {
             String parsedRequest = IOUtils.toString(request.getReader());
-            JSONObject obj = new JSONObject(parsedRequest);
-            parsedRequest = obj.getString("request");
-
+            
             String dataString = "DATA-" + parsedRequest.split("-")[1];
-            JSONObject dataObj = new JSONObject();
-            dataObj.put("data", dataString);
 
             exchange.response.setStatus(200);
             PrintWriter writer = exchange.response.getWriter();
-            writer.write(dataObj.toString());
+            writer.write(dataString);
             writer.flush();
             writer.close();
 

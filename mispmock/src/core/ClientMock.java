@@ -20,17 +20,12 @@ public class ClientMock extends ClientServlet {
         this.mockSet = mockSet;
     }
 
-
+    /**
+     * Send POST (Ride).
+     * Parse response.
+     */
     @Override
-    void sendPostRide(Ride ride) throws IOException, ServletException, InterruptedException {
-
-
-
-
-        synchronized (available){
-            available.put(ride.getID(),ride);
-        }
-
+    protected Ride doSendPostRide(Ride ride) throws IOException, ServletException, InterruptedException {
 
         // Mock Exchange
         final ExchangeMock exchange = new ExchangeMock();
@@ -43,27 +38,23 @@ public class ClientMock extends ClientServlet {
             exchange.notify();
             mockSet.bridgeMock.doPost(exchange.request, exchange.response);
             exchange.wait();
-
-            // handle OK (Ride)(Request)
-            Ride parsedRide = new Ride(exchange.response.getContentAsString());
-            ride.setRequest(parsedRide.getRequest());
-
             exchange.notify();
         }
-        available.remove(ride.getID());
-        booked.put(ride.getID(),ride);
-        sendGetRequest(ride);
+
+        // handle OK (Ride)(Request)
+        return new Ride(exchange.response.getContentAsString());
     }
 
 
     /**
-     * # send GET (Request) to App
+     * Send GET (Request) to App.
+     * Parse response.
      */
     @Override
-    void sendGetRequest(Ride ride) throws IOException, ServletException, InterruptedException {
+    protected Ride doSendGetRequest(Ride ride) throws IOException, InterruptedException {
 
         // Mock Exchange
-        ExchangeMock exchange = new ExchangeMock();
+        final ExchangeMock exchange = new ExchangeMock();
 
         exchange.request.setMethod("GET");
         exchange.request.setContentType("application/json");
@@ -73,28 +64,24 @@ public class ClientMock extends ClientServlet {
             // Mock GET (Request)
             exchange.notify();
             mockSet.appMock.doGet(exchange.request, exchange.response);
-            //exchange.wait();
 
             // handle OK (Data)
-            Ride parsedRide = new Ride(exchange.response.getContentAsString());
-            ride.setData(parsedRide.getData());
             exchange.notify();
         }
-        booked.remove(ride.getID());
-        loaded.put(ride.getID(),ride);
-        sendGetRideRequestData(ride);
+
+        return new Ride(exchange.response.getContentAsString());
     }
 
 
     /**
-     * # send GET (Ride)(Request)(Data)
+     * Send GET (Ride)(Request)(Data).
+     * Parse response.
      */
     @Override
-    void sendGetRideRequestData(Ride ride) throws IOException, ServletException, InterruptedException {
+    protected void doSendGetRideRequest(Ride ride) throws IOException, InterruptedException {
 
         // Mock Exchange
-        ExchangeMock exchange = new ExchangeMock();
-
+        final ExchangeMock exchange = new ExchangeMock();
         exchange.request.setMethod("GET");
         exchange.request.setContentType("application/json");
         exchange.request.setContent(ride.json().getBytes());
@@ -104,10 +91,6 @@ public class ClientMock extends ClientServlet {
             exchange.notify();
             mockSet.bridgeMock.doGet(exchange.request, exchange.response);
             exchange.wait();
-
-            // handle OK (Ride)
-            Ride parsedRide = new Ride(exchange.response.getContentAsString());
-            loaded.remove(parsedRide.getID());
             exchange.notify();
         }
     }

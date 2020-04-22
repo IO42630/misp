@@ -1,9 +1,8 @@
 package com.olexyn.misp.bridge;
 
+import com.olexyn.misp.helper.JsonHelper;
 import com.olexyn.misp.helper.Ride;
 import org.apache.commons.io.IOUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -30,33 +29,21 @@ public class BridgeServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 
+        final String payload = IOUtils.toString(request.getReader());
+        final boolean isJson = JsonHelper.isJson(payload);
+        boolean hasID = false;
+        boolean hasRequest = false;
+        boolean hasData = false;
+
+        if (isJson) {
+            final Ride ridePayload = new Ride(payload);
+            hasID = ridePayload.getID() != null;
+            hasRequest = ridePayload.getRequest() != null;
+            hasData = ridePayload.getData() != null;
+        }
 
 
-            String payload = IOUtils.toString(request.getReader());
-
-            JSONObject obj = new JSONObject();
-            try {
-                obj = new JSONObject(payload);
-            }catch (JSONException jsonE){
-                int br = 0;
-                Thread handleGetUserRequestThread = new Thread(() -> {
-                    try {
-                        handleGetRequest(request, response);
-                    } catch (IOException | InterruptedException e) {e.printStackTrace(); }
-                });
-                handleGetUserRequestThread.setName("handleGetUserRequestThread");
-                handleGetUserRequestThread.start();
-            }
-
-        Ride ridePayload = new Ride(payload);
-        boolean hasID = ridePayload.getID() != null;
-        boolean hasRequest = ridePayload.getRequest() != null;
-        boolean hasData = ridePayload.getData() != null;
-
-
-
-
-        if (hasID && hasRequest && hasData) {
+        if (isJson && hasID && hasRequest && hasData) {
             Thread handleGetRideRequestDataThread = new Thread(() -> {
                 try {
                     handleGetRideRequestData(request, response);
@@ -64,8 +51,16 @@ public class BridgeServlet extends HttpServlet {
             });
             handleGetRideRequestDataThread.setName("handleGetRideRequestDataThread");
             handleGetRideRequestDataThread.start();
-        }
 
+        } else {
+            Thread handleGetRequestThread = new Thread(() -> {
+                try {
+                    handleGetRequest(request, response);
+                } catch (IOException | InterruptedException e) {e.printStackTrace(); }
+            });
+            handleGetRequestThread.setName("handleGetRequestThread");
+            handleGetRequestThread.start();
+        }
 
     }
 
@@ -124,7 +119,8 @@ public class BridgeServlet extends HttpServlet {
         final PrintWriter writer = response.getWriter();
         writer.write(ride.getData());
         writer.flush();
-        writer.close();    }
+        writer.close();
+    }
 
 
     /**
@@ -181,7 +177,7 @@ public class BridgeServlet extends HttpServlet {
         }
 
         // ID is final/threadsafe
-        while(!(booked.containsKey(ride.getID()))){
+        while (!(booked.containsKey(ride.getID()))) {
 
         }
 

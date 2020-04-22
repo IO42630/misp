@@ -32,7 +32,7 @@ public class Ride {
         }
 
 
-        Long _id;
+        long _id;
 
         try {
             _id = obj.getLong("id");
@@ -53,6 +53,31 @@ public class Ride {
 
 
     }
+
+
+    public Ride(JSONObject obj){
+        long _id;
+
+        try {
+            _id = obj.getLong("id");
+        }catch (JSONException e){
+            _id = count++;
+        }
+        id = _id;
+        try{
+            request = obj.getString("request");
+        } catch (JSONException e){
+            request = null;
+        }
+        try{
+            data = obj.getString("data");
+        }catch (JSONException e){
+            data = null;
+        }
+    }
+
+
+
 
 
     public void setRequest(String request) {

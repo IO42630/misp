@@ -15,20 +15,24 @@ public class Main {
 
         Runnable publicRunnable = new UserMock(mockSet);
         Runnable bridgeRunable = new BridgeRunnable(mockSet);
-        Runnable clientRunnable = new ClientRunnable(mockSet);
+        Runnable adapterRunnable = new AdapterRunnable(mockSet);
+        //Runnable clientRunnable = new ClientRunnable(mockSet);
         Runnable appRunnable = new AppMock(mockSet);
 
         Thread userThread = new Thread(publicRunnable);
         Thread bridgeThread = new Thread(bridgeRunable);
-        Thread clientThread = new Thread(clientRunnable);
+        Thread adapterThread = new Thread(adapterRunnable);
+        //Thread clientThread = new Thread(clientRunnable);
         Thread appThread = new Thread(appRunnable);
 
         userThread.setName("userThread");
         userThread.start();
         bridgeThread.setName("bridgeThread");
         bridgeThread.start();
-        clientThread.setName("clientThread");
-        clientThread.start();
+        adapterThread.setName("adapterThread");
+        adapterThread.start();
+        //clientThread.setName("clientThread");
+        //clientThread.start();
         appThread.setName("appThread");
         appThread.start();
     }

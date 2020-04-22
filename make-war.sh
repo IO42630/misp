@@ -1,4 +1,8 @@
 #!/bin/bash
+
+echo "================"
+echo "START RUN"
+echo "================"
 cwd=$(pwd)
 
 
@@ -9,7 +13,9 @@ jar -cvf misphelper.jar ./com/olexyn/misp/helper/*
 
 
 
-
+echo "================"
+echo "END MispHelper JAR"
+echo "================"
 
 
 
@@ -24,14 +30,19 @@ out="/out/production/${n}${pkg}"
 wrapper="/${n}/war/wrapper"
 
 # copy misphelper.jar to wrapper/.../lib
-cp "${cwd}/out/production/misphelper/misphelper.jar" "${cwd}${wrapper}/WEB-INF/lib"
+cp -v"${cwd}/out/production/misphelper/misphelper.jar" "${cwd}${wrapper}/WEB-INF/lib"
 
 # copy compiled code into the wrapper.
-cp -r "${cwd}${out}" "${cwd}${wrapper}/WEB-INF/classes/com/olexyn/${a}"
+cp -vr "${cwd}${out}" "${cwd}${wrapper}/WEB-INF/classes/com/olexyn/${a}"
 
 # compress .war
 cd "${cwd}${wrapper}" || exit
 jar -cvf "../${n}.war" *
+
+
+echo "================"
+echo "END MispBridge WAR"
+echo "================"
 
 
 a='misp'
@@ -44,14 +55,19 @@ out="/out/production/${n}${pkg}"
 wrapper="/${n}/war/wrapper"
 
 # copy misphelper.jar to wrapper/.../lib
-cp "${cwd}/out/production/misphelper/misphelper.jar" "${cwd}${wrapper}/WEB-INF/lib"
+cp -v "${cwd}/out/production/misphelper/misphelper.jar" "${cwd}${wrapper}/WEB-INF/lib"
 
 # copy compiled code into the wrapper.
-cp -r "${cwd}${out}" "${cwd}${wrapper}/WEB-INF/classes/com/olexyn/${a}"
+cp -vr "${cwd}${out}" "${cwd}${wrapper}/WEB-INF/classes/com/olexyn/${a}"
 
 # compress .war
 cd "${cwd}${wrapper}" || exit
 jar -cvf "../${n}.war" *
+
+
+echo "================"
+echo "END MispClient WAR"
+echo "================"
 
 
 
@@ -62,11 +78,15 @@ out="/out/production/${a}${pkg}"
 wrapper="/${a}/war/wrapper"
 
 # copy misphelper.jar to wrapper/.../lib
-cp "${cwd}/out/production/misphelper/misphelper.jar" "${cwd}${wrapper}/WEB-INF/lib"
+cp -v "${cwd}/out/production/misphelper/misphelper.jar" "${cwd}${wrapper}/WEB-INF/lib"
 
 # copy compiled code into the wrapper.
-cp -r "${cwd}${out}" "${cwd}${wrapper}/WEB-INF/classes/com/olexyn"
+cp -vr "${cwd}${out}" "${cwd}${wrapper}/WEB-INF/classes/com/olexyn"
 
 # compress .war
 cd "${cwd}${wrapper}" || exit
 jar -cvf "../${a}.war" *
+
+echo "================"
+echo "END Mirror WAR"
+echo "================"

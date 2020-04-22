@@ -6,6 +6,7 @@ import com.olexyn.misp.mock.actor.UserMock;
 public class MockSet {
     public UserMock userMock;
     public BridgeMock bridgeMock;
+    public AdapterMock adapterMock;
     public ClientMock clientMock;
     public AppMock appMock;
 }

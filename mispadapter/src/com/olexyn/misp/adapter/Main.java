@@ -1,4 +1,4 @@
-package com.olexyn.mispl.adapter;
+package com.olexyn.misp.adapter;
 
 public class Main {
 

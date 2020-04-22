@@ -1,9 +1,8 @@
 package com.olexyn.misp.mock;
 
-import com.olexyn.misp.client.ClientServlet;
 import com.olexyn.misp.helper.Ride;
 import com.olexyn.misp.mock.exchange.ExchangeMock;
-import com.olexyn.mispl.adapter.Adapter;
+import com.olexyn.misp.adapter.Adapter;
 
 import javax.servlet.ServletException;
 import java.io.IOException;

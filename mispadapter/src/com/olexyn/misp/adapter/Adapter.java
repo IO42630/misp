@@ -1,12 +1,11 @@
-package com.olexyn.mispl.adapter;
+package com.olexyn.misp.adapter;
 
-import com.olexyn.misp.client.ConnectionHelper;
+
 import com.olexyn.misp.helper.Ride;
 
 import javax.servlet.ServletException;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +14,7 @@ import java.util.Map;
 public class Adapter {
 
     protected static final String MISP_BRIDGE_URL = "http://localhost:9090/mispbridge/core";
-    protected static final String APP_URL = "http://localhost:9090/mispclient";
+    protected static final String APP_URL = "http://localhost:9090/mirror/core";
 
     public static final int AVAILABLE_RIDES_OVERHEAD_TRIGGER = 2;
     public static final int AVAILABLE_RIDES_OVERHEAD = 4;

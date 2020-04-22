@@ -20,11 +20,21 @@ public class Mirror extends HttpServlet {
     protected static final String MISP_CLIENT_URL = "http://localhost:9090/mispclient/core";
 
 
-    private final List<String> getList = new ArrayList<>();
-    private final List<String> postList = new ArrayList<>();
-    private final List<String> putList = new ArrayList<>();
+    private final List<String> list = new ArrayList<>();
 
 
+
+    private void addRequest(HttpServletRequest request){
+        synchronized (list) {
+            StringBuffer sb = new StringBuffer();
+            sb.append(request.getRequestURL().toString());
+            sb.append(WebPrint.SPLIT);
+            sb.append(request.getMethod());
+            sb.append(WebPrint.SPLIT);
+            sb.append(request.getQueryString());
+            list.add(sb.toString());
+        }
+    }
     // #######
     //
     // #######
@@ -32,9 +42,7 @@ public class Mirror extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        synchronized (getList) {
-            getList.add(IOUtils.toString(request.getReader()));
-        }
+        addRequest(request);
 
         PrintWriter print = response.getWriter();
 
@@ -48,9 +56,14 @@ public class Mirror extends HttpServlet {
         print.println("<script src=\"script.js\"></script>");
         print.println("</head>");
         print.println("<body>");
-        synchronized (getList) {
-            print.println(WebPrint.list(getList, "GET"));
+        synchronized (list) {
+
+            print.println(WebPrint.requestList(list));
         }
+
+
+
+
         print.println(" </body></html>");
 
 
@@ -58,19 +71,15 @@ public class Mirror extends HttpServlet {
 
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response)  {
 
-        synchronized (postList) {
-            postList.add(IOUtils.toString(request.getReader()));
-        }
+        addRequest(request);
     }
 
 
     @Override
-    public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException{
-        synchronized (putList){
-            putList.add(IOUtils.toString(request.getReader()));
-        }
+    public void doPut(HttpServletRequest request, HttpServletResponse response){
+        addRequest(request);
     }
 }
 

@@ -1,4 +1,5 @@
 #### About
 The `mispbridge` servlet.
-* `./mispbridge` copy/link this to `tomcat/webapps`.
-* `./src` the source code.
+* `./src` the code.
+* `./war/wrapper` supplements needed for `.war`.
+* `./war/<name>.war` copy this to `tomcat/webapps`.

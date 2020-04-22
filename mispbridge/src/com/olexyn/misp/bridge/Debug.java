@@ -23,7 +23,7 @@ public class Debug {
         sb.append("<table style=\"width:100%\">");
         sb.append("<tr>");
         sb.append("<th>");
-        sb.append("Debug: "+ type);
+        sb.append("WebPrint: "+ type);
         sb.append("</th>");
         sb.append("</tr>");
         synchronized (foo){

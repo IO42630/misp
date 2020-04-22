@@ -12,7 +12,7 @@
 
     <servlet>
         <servlet-name>BridgeServlet</servlet-name>
-        <servlet-class>core.BridgeServlet</servlet-class>
+        <servlet-class>com.olexyn.misp.bridge.BridgeServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>

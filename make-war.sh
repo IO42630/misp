@@ -2,34 +2,71 @@
 cwd=$(pwd)
 
 
-mispbridge_out='/out/production/mispbridge/com/olexyn/misp/bridge'
-mispbridge_wrapper='/mispbridge/war/wrapper';
+# compile and distribute the misphelper.jar
+cd "${cwd}/out/production/misphelper" || exit
+
+jar -cvf misphelper.jar ./com/olexyn/misp/helper/*
+
+
+
+
+
+
+
+
+a='misp'
+b='bridge'
+
+
+n="${a}${b}"
+pkg="/com/olexyn/${a}/${b}"
+out="/out/production/${n}${pkg}"
+wrapper="/${n}/war/wrapper"
+
+# copy misphelper.jar to wrapper/.../lib
+cp "${cwd}/out/production/misphelper/misphelper.jar" "${cwd}${wrapper}/WEB-INF/lib"
 
 # copy compiled code into the wrapper.
-cp -r "${cwd}${mispbridge_out}" "${cwd}${mispbridge_wrapper}/WEB-INF/classes"
+cp -r "${cwd}${out}" "${cwd}${wrapper}/WEB-INF/classes/com/olexyn/${a}"
 
 # compress .war
-cd "${cwd}${mispbridge_wrapper}" || exit
-jar -cvf ../mispbridge.war *
+cd "${cwd}${wrapper}" || exit
+jar -cvf "../${n}.war" *
 
 
-mispclient_out='/out/production/mispclient/com/olexyn/misp/client'
-mispclient_wrapper='/mispclient/war/wrapper';
+a='misp'
+b='client'
+
+
+n="${a}${b}"
+pkg="/com/olexyn/${a}/${b}"
+out="/out/production/${n}${pkg}"
+wrapper="/${n}/war/wrapper"
+
+# copy misphelper.jar to wrapper/.../lib
+cp "${cwd}/out/production/misphelper/misphelper.jar" "${cwd}${wrapper}/WEB-INF/lib"
 
 # copy compiled code into the wrapper.
-cp -r "${cwd}${mispclient_out}" "${cwd}${mispclient_wrapper}/WEB-INF/classes"
+cp -r "${cwd}${out}" "${cwd}${wrapper}/WEB-INF/classes/com/olexyn/${a}"
 
 # compress .war
-cd "${cwd}${mispclient_wrapper}" || exit
-jar -cvf ../mispclient.war *
+cd "${cwd}${wrapper}" || exit
+jar -cvf "../${n}.war" *
 
 
-mirror_out='/out/production/mirror/com/olexyn/mirror'
-mirror_wrapper='/mirror/war/wrapper';
+
+a='mirror'
+
+pkg="/com/olexyn/${a}"
+out="/out/production/${a}${pkg}"
+wrapper="/${a}/war/wrapper"
+
+# copy misphelper.jar to wrapper/.../lib
+cp "${cwd}/out/production/misphelper/misphelper.jar" "${cwd}${wrapper}/WEB-INF/lib"
 
 # copy compiled code into the wrapper.
-cp -r "${cwd}${mirror_out}" "${cwd}${mirror_wrapper}/WEB-INF/classes"
+cp -r "${cwd}${out}" "${cwd}${wrapper}/WEB-INF/classes/com/olexyn"
 
 # compress .war
-cd "${cwd}${mirror_wrapper}" || exit
-jar -cvf ../mirror.war *
+cd "${cwd}${wrapper}" || exit
+jar -cvf "../${a}.war" *

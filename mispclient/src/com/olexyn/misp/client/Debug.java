@@ -11,7 +11,7 @@ public class Debug {
 
         
         StringBuilder sb = new StringBuilder();
-        sb.append("<h1>Debug:</h1>");
+        sb.append("<h1>WebPrint:</h1>");
         sb.append(mapTable(clientServlet.available, "available"));
         sb.append(mapTable(clientServlet.booked, "booked"));
         sb.append(mapTable(clientServlet.loaded, "loaded"));

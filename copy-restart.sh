@@ -8,9 +8,8 @@ echo "================"
 echo "END TOMCAT STOP "
 echo "================"
 
-cp -v "${cwd}/mirror/war/mirror.war" /home/user/app/tomcat/webapps
-cp -v "${cwd}/mispbridge/war/mispbridge.war" /home/user/app/tomcat/webapps
-cp -v "${cwd}/mispclient/war/mispclient.war" /home/user/app/tomcat/webapps
+#cp -v "${cwd}/mirror/war/mirror.war" /home/user/app/tomcat/webapps
+cp -v "${cwd}/misp-rev/target/misp-rev-0.1.war" /home/user/app/tomcat/webapps
 
 echo "================"
 echo "END COPY"

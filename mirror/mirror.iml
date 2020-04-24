@@ -10,7 +10,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="org.eclipse.jetty.orbit:javax.servlet:3.0.0.v201112011016" level="project" />
-    <orderEntry type="module" module-name="misphelper" />
     <orderEntry type="library" name="org.json:json:20190722" level="project" />
     <orderEntry type="library" name="commons-io:commons-io:2.6" level="project" />
   </component>

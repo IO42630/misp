@@ -18,7 +18,8 @@ class GetRequestRunnable implements Runnable {
             synchronized (reverse.booked) {
                 if (reverse.booked.size() > 0) {
                     final Ride ride = reverse.booked.entrySet().iterator().next().getValue();
-                    try { reverse.sendGetRequest(ride); } catch (IOException ignored) {}
+                    Thread t = new Thread(() -> { try { reverse.sendGetRequest(ride); } catch (IOException ignored) { } });
+                    t.start();
                 }
             }
         }

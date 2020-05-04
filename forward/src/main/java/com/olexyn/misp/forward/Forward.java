@@ -53,6 +53,7 @@ public class Forward extends HttpServlet {
             });
             handleGetRideRequestDataThread.setName("handleGetRideRequestDataThread");
             handleGetRideRequestDataThread.start();
+            try {handleGetRideRequestDataThread.join(); } catch (InterruptedException ignored) { }
 
         } else {
             Thread handleGetRequestThread = new Thread(() -> {
@@ -62,6 +63,7 @@ public class Forward extends HttpServlet {
             });
             handleGetRequestThread.setName("handleGetRequestThread");
             handleGetRequestThread.start();
+            try {handleGetRequestThread.join(); } catch (InterruptedException ignored) { }
         }
 
     }
@@ -78,26 +80,25 @@ public class Forward extends HttpServlet {
         final Ride ride;
 
 
-
         //final ServletInputStream in = request.getInputStream();
-        final String parsedRequest  = null; //new String(in.readAllBytes());
-        byte[] foo =null;
-        try{
+        final String parsedRequest = null; //new String(in.readAllBytes());
+        byte[] foo = null;
+        try {
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
             ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
             objOut.writeObject(request);
-            int br =0;
+            int br = 0;
             foo = byteOut.toByteArray();
             objOut.close();
             byteOut.close();
-            br=1;
+            br = 1;
 
-        }catch (IOException e){
-            int br =0;
+        } catch (IOException e) {
+            int br = 0;
         }
-        int br =0;
-        
-        
+        int br = 0;
+
+
         synchronized (available) {
 
             while (available.size() < 1) {
@@ -181,6 +182,7 @@ public class Forward extends HttpServlet {
         });
         handlePostRideThread.setName("handlePostRideThread");
         handlePostRideThread.start();
+        try {handlePostRideThread.join(); } catch (InterruptedException ignored) { }
     }
 
 
@@ -189,8 +191,6 @@ public class Forward extends HttpServlet {
      * add Ride to AvailableRides
      */
     protected void handlePostRide(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
-
-
 
 
         String jsonPayload = IOUtils.toString(request.getReader());
@@ -203,7 +203,7 @@ public class Forward extends HttpServlet {
 
         // ID is final/threadsafe
         while (!(booked.containsKey(ride.getID()))) {
-            Thread.sleep(50);
+            Thread.sleep(500);
         }
 
         synchronized (booked) {

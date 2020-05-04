@@ -14,9 +14,12 @@ class PostRideRunnable implements Runnable {
     public void run() {
         while (true) {
             synchronized (reverse.available) {
-                if (reverse.available.size() < reverse.AVAILABLE_RIDES_OVERHEAD_TRIGGER) {
-                    for (int i = 0; i < reverse.AVAILABLE_RIDES_OVERHEAD; i++) {
-                        try {reverse.sendPostRide();} catch (IOException ignored) {}
+                if (Reverse.AVAILABLE_RIDES < Reverse.AVAILABLE_RIDES_OVERHEAD_TRIGGER) {
+
+                    for (int i = Reverse.AVAILABLE_RIDES; i < Reverse.AVAILABLE_RIDES_OVERHEAD; i++) {
+                        Reverse.AVAILABLE_RIDES++;
+                        Thread t = new Thread(() -> { try { reverse.sendPostRide(); } catch (IOException ignored) { } });
+                        t.start();
                     }
                 }
             }

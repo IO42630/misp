@@ -18,7 +18,8 @@ class GetRideRequestDataRunnable implements Runnable {
             synchronized (reverse.loaded) {
                 if (reverse.loaded.size() > 0) {
                     final Ride ride = reverse.loaded.entrySet().iterator().next().getValue();
-                    try { reverse.sendGetRideRequestData(ride); } catch (IOException ignored) {}
+                    Thread t = new Thread(() -> { try { reverse.sendGetRideRequestData(ride); } catch (IOException ignored) { } });
+                    t.start();
                 }
             }
         }

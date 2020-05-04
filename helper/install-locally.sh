@@ -1,8 +1,8 @@
 #!/bin/bash
 version="0.1"
-file="target/misp-helper-${version}.jar"
+file="target/helper-${version}.jar"
 groupId="com.olexyn.misp.helper"
-artifactId="misp-helper"
+artifactId="helper"
 
 
 

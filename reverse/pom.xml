@@ -27,7 +27,7 @@
     </dependency>
       <dependency>
           <groupId>com.olexyn.misp.helper</groupId>
-          <artifactId>misp-helper</artifactId>
+          <artifactId>helper</artifactId>
           <version>0.1</version>
           <scope>compile</scope>
       </dependency>

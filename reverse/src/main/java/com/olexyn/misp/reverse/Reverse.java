@@ -15,16 +15,17 @@ import java.util.Map;
 
 public class Reverse {
 
-    public String FORWARD_URL = "http://localhost:8090/bridge";
+    public String FORWARD_URL = "http://localhost:8090/forward";
     public String APP_URL = "http://localhost:8090/app";
 
-    public int AVAILABLE_RIDES_OVERHEAD_TRIGGER = 1;
-    public int AVAILABLE_RIDES_OVERHEAD = 2;
+    public static int AVAILABLE_RIDES_OVERHEAD_TRIGGER = 1;
+    public static int AVAILABLE_RIDES_OVERHEAD = 2;
+    public static int AVAILABLE_RIDES = 0;
 
 
-    public final Map<Long, Ride> available = new HashMap<>();
-    public final Map<Long, Ride> booked = new HashMap<>();
-    public final Map<Long, Ride> loaded = new HashMap<>();
+    final Map<Long, Ride> available = new HashMap<>();
+    final Map<Long, Ride> booked = new HashMap<>();
+    final Map<Long, Ride> loaded = new HashMap<>();
 
 
     public void start() {
@@ -46,13 +47,23 @@ public class Reverse {
 
         final Ride ride = new Ride();
 
-        synchronized (available) { available.put(ride.getID(), ride); }
+        synchronized (available) {
+
+            available.put(ride.getID(), ride);
+
+        }
 
         final String result = send("POST", FORWARD_URL, ride.json());
 
         synchronized (available) {
+            AVAILABLE_RIDES--;
             available.remove(ride.getID());
-            ride.setRequest(new Ride(result).getRequest());
+
+
+
+            String _parsed = new Ride(result).getRequest();
+            String request = _parsed==null ? "" : _parsed;
+            ride.setRequest(request);
         }
 
         synchronized (booked) { booked.put(ride.getID(), ride); }
@@ -72,14 +83,19 @@ public class Reverse {
 
     void sendGetRideRequestData(Ride ride) throws IOException {
 
+        synchronized (loaded) {loaded.remove(ride.getID()); }
+
         send("GET", FORWARD_URL, ride.json());
 
-        synchronized (loaded) {loaded.remove(ride.getID()); }
+
     }
 
 
-    private static String send(String method, String urlString, String body) throws IOException {
+    private  String send(String method, String urlString, String body) throws IOException {
 
+        if (method.equals("GET")){
+            int br =0;
+        }
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod(method);
@@ -102,7 +118,6 @@ public class Reverse {
         in.close();
         return sb.toString();
     }
-
 
 
 }

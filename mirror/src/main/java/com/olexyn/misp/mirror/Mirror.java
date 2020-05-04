@@ -3,6 +3,7 @@ package com.olexyn.misp.mirror;
 import com.olexyn.misp.helper.Ride;
 import com.olexyn.misp.helper.WebPrint;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 public class Mirror extends HttpServlet {
 
-    protected static final String MISP_CLIENT_URL = "http://localhost:9090/mispclient/core";
+
 
 
     private final List<String> list = new ArrayList<>();
@@ -26,13 +27,16 @@ public class Mirror extends HttpServlet {
 
     private void addRequest(HttpServletRequest request){
         synchronized (list) {
-            StringBuffer sb = new StringBuffer();
-            sb.append(request.getRequestURL().toString());
-            sb.append(WebPrint.SPLIT);
-            sb.append(request.getMethod());
-            sb.append(WebPrint.SPLIT);
-            sb.append(request.getQueryString());
-            list.add(sb.toString());
+            JSONObject obj = new JSONObject();
+            obj.put("RequestURL", request.getRequestURL());
+            obj.put("RemoteAddr" , request.getRemoteAddr());
+            obj.put("Method", request.getMethod());
+            obj.put("Param", request.getParameterMap().toString());
+            obj.put("QueryString", request.getQueryString());
+            obj.put("ContextPath",request.getContextPath());
+
+
+            list.add(obj.toString());
         }
     }
     // #######

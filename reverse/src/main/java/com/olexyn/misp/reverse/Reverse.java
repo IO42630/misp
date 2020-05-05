@@ -2,6 +2,7 @@ package com.olexyn.misp.reverse;
 
 
 import com.olexyn.misp.helper.Ride;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -9,37 +10,22 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class Reverse {
 
+
+    private int available;
     public String FORWARD_URL = "http://localhost:8090/forward";
     public String APP_URL = "http://localhost:8090/app";
 
-    public static int AVAILABLE_RIDES_OVERHEAD_TRIGGER = 1;
-    public static int AVAILABLE_RIDES_OVERHEAD = 2;
-    public static int AVAILABLE_RIDES = 0;
+
+    public void start() throws IOException {
+
+                    sendPostAvailable();
+                    sendPostRide();
 
 
-    final Map<Long, Ride> available = new HashMap<>();
-    final Map<Long, Ride> booked = new HashMap<>();
-    final Map<Long, Ride> loaded = new HashMap<>();
-
-
-    public void start() {
-        Thread postRideThread = new Thread(new PostRideRunnable(this));
-        postRideThread.setName("postRideThread");
-        postRideThread.start();
-
-        Thread getRequestThread = new Thread(new GetRequestRunnable(this));
-        getRequestThread.setName("getRequestThread");
-        getRequestThread.start();
-
-        Thread getRideRequestDataThread = new Thread(new GetRideRequestDataRunnable(this));
-        getRideRequestDataThread.setName("getRideRequestDataThread");
-        getRideRequestDataThread.start();
     }
 
 
@@ -47,68 +33,75 @@ public class Reverse {
 
         final Ride ride = new Ride();
 
-        synchronized (available) {
-
-            available.put(ride.getID(), ride);
-
-        }
-
         final String result = send("POST", FORWARD_URL, ride.json());
 
-        synchronized (available) {
-            AVAILABLE_RIDES--;
-            available.remove(ride.getID());
 
 
 
-            String _parsed = new Ride(result).getRequest();
-            String request = _parsed==null ? "" : _parsed;
-            ride.setRequest(request);
-        }
 
-        synchronized (booked) { booked.put(ride.getID(), ride); }
+
+        String _req = new Ride(result).getRequest();
+        String request = (_req == null) ? "" : _req;
+        ride.setRequest(request);
+
+        sendGetRequest(ride);
     }
 
 
     void sendGetRequest(Ride ride) throws IOException {
 
-        synchronized (booked) {booked.remove(ride.getID()); }
-
         final String result = send("GET", APP_URL, ride.getRequest());
         ride.setData(result);
 
-        synchronized (loaded) {loaded.put(ride.getID(), ride); }
+        sendPostRideRequestData(ride);
     }
 
 
-    void sendGetRideRequestData(Ride ride) throws IOException {
+    void sendPostRideRequestData(Ride ride) throws IOException {
 
-        synchronized (loaded) {loaded.remove(ride.getID()); }
+        send("POST", FORWARD_URL, ride.json());
 
-        send("GET", FORWARD_URL, ride.json());
-
+        //sendPostRide();
 
     }
 
 
-    private  String send(String method, String urlString, String body) throws IOException {
+    void sendPostAvailable() throws IOException {
+        JSONObject obj = new JSONObject();
+        obj.put("available", 0);
+        String result = send("POST", FORWARD_URL, obj.toString());
+        JSONObject resultObj = new JSONObject(result);
+        available = resultObj.getInt("available");
 
-        if (method.equals("GET")){
-            int br =0;
-        }
+    }
+
+
+
+
+    private String send(String method, String urlString, String body) throws IOException {
+
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod(method);
 
-        connection.setDoOutput(true);
-        DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
 
-        if (body != null) {
-            outputStream.writeBytes(body);
+        boolean getToForward = method.equals("GET") && urlString.contains("forward");
+
+        if (method.equals("POST") || getToForward) {
+            connection.setDoOutput(true);
+
+
+            DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+
+            if (body != null) {
+                outputStream.writeBytes(body);
+            }
+
+            outputStream.flush();
+            outputStream.close();
+
         }
 
-        outputStream.flush();
-        outputStream.close();
 
         int i = connection.getResponseCode();
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));

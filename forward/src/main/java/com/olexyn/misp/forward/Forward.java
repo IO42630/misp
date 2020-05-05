@@ -3,14 +3,13 @@ package com.olexyn.misp.forward;
 import com.olexyn.misp.helper.JsonHelper;
 import com.olexyn.misp.helper.Ride;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
-import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,40 +30,15 @@ public class Forward extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 
-        final String payload = IOUtils.toString(request.getReader());
-        final boolean isJson = JsonHelper.isJson(payload);
-        boolean hasID = false;
-        boolean hasRequest = false;
-        boolean hasData = false;
+        Thread handleGetRequestThread = new Thread(() -> {
+            try {
+                handleGetRequest(request, response);
+            } catch (IOException | InterruptedException e) {e.printStackTrace(); }
+        });
+        handleGetRequestThread.setName("handleGetRequestThread");
+        handleGetRequestThread.start();
+        try {handleGetRequestThread.join(); } catch (InterruptedException ignored) { }
 
-        if (isJson) {
-            final Ride ridePayload = new Ride(payload);
-            hasID = ridePayload.getID() != null;
-            hasRequest = ridePayload.getRequest() != null;
-            hasData = ridePayload.getData() != null;
-        }
-
-
-        if (isJson && hasID && hasRequest && hasData) {
-            Thread handleGetRideRequestDataThread = new Thread(() -> {
-                try {
-                    handleGetRideRequestData(request, response);
-                } catch (IOException | InterruptedException e) { e.printStackTrace(); }
-            });
-            handleGetRideRequestDataThread.setName("handleGetRideRequestDataThread");
-            handleGetRideRequestDataThread.start();
-            try {handleGetRideRequestDataThread.join(); } catch (InterruptedException ignored) { }
-
-        } else {
-            Thread handleGetRequestThread = new Thread(() -> {
-                try {
-                    handleGetRequest(request, response);
-                } catch (IOException | InterruptedException e) {e.printStackTrace(); }
-            });
-            handleGetRequestThread.setName("handleGetRequestThread");
-            handleGetRequestThread.start();
-            try {handleGetRequestThread.join(); } catch (InterruptedException ignored) { }
-        }
 
     }
 
@@ -80,23 +54,8 @@ public class Forward extends HttpServlet {
         final Ride ride;
 
 
-        //final ServletInputStream in = request.getInputStream();
-        final String parsedRequest = null; //new String(in.readAllBytes());
-        byte[] foo = null;
-        try {
-            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-            ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
-            objOut.writeObject(request);
-            int br = 0;
-            foo = byteOut.toByteArray();
-            objOut.close();
-            byteOut.close();
-            br = 1;
-
-        } catch (IOException e) {
-            int br = 0;
-        }
-        int br = 0;
+        final ServletInputStream in = request.getInputStream();
+        final String parsedRequest = new String(in.readAllBytes());
 
 
         synchronized (available) {
@@ -124,9 +83,17 @@ public class Forward extends HttpServlet {
 
         synchronized (loaded) {
 
-            while (!loaded.containsKey(ride.getID())) {
+            boolean realcondition = !loaded.containsKey(ride.getID());
+            boolean relaxedcondition = loaded.size() == 0;
+
+            while (loaded.size() == 0) {
+
                 loaded.notify();
+                if (loaded.size() > 0) {
+                    break;
+                }
                 loaded.wait();
+
             }
 
 
@@ -134,7 +101,10 @@ public class Forward extends HttpServlet {
             // what if ride exists in another map, e.g. "available'
             // in that case illegal access is possible
             // be carefull to removing ride from all other references, when adding it to "loaded".
-            ride.setData(loaded.remove(ride.getID()).getData());
+            Ride badbad__ride = loaded.entrySet().iterator().next().getValue();
+            ride.setData(loaded.remove(badbad__ride.getID()).getData());
+            //ride.setData(loaded.remove(ride.getID()).getData());
+
         }
 
         response.setStatus(200);
@@ -157,9 +127,10 @@ public class Forward extends HttpServlet {
      * remove Ride from ForwardedData
      * add Ride to EOL
      */
-    protected void handleGetRideRequestData(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
-        final String jsonPayload = IOUtils.toString(request.getReader());
-        final Ride ride = new Ride(jsonPayload);
+    protected void handlePostRideRequestData(HttpServletRequest request, HttpServletResponse response, String payload) {
+
+        final String _payload = payload;
+        final Ride ride = new Ride(_payload);
 
         synchronized (booked) {
             booked.remove(ride.getID());
@@ -171,52 +142,95 @@ public class Forward extends HttpServlet {
         }
     }
 
+
+    protected void handlePostAvailable(HttpServletRequest request, HttpServletResponse response) {
+        JSONObject obj = new JSONObject();
+        obj.put("available", available.size());
+
+        response.setStatus(200);
+        try {
+            PrintWriter writer = response.getWriter();
+            writer.write(obj.toString());
+            writer.flush();
+            writer.close();
+        } catch (Exception ignored) {}
+    }
+
+
     // #######
     //
     // #######
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        Thread handlePostRideThread = new Thread(() -> {
-            try {handlePostRide(request, response); } catch (IOException | InterruptedException e) { e.printStackTrace(); }
-        });
-        handlePostRideThread.setName("handlePostRideThread");
-        handlePostRideThread.start();
-        try {handlePostRideThread.join(); } catch (InterruptedException ignored) { }
-    }
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
+        String payload = IOUtils.toString(request.getReader());
+
+        if (!JsonHelper.isJson(payload)) { return; }
+
+        JSONObject obj = new JSONObject(payload);
+
+        if (obj.has("available")) {
+            Thread handlePostAvailableT = new Thread(() -> { handlePostAvailable(request, response); });
+            handlePostAvailableT.setName("handlePostAvailableT");
+            handlePostAvailableT.start();
+            try {handlePostAvailableT.join(); } catch (InterruptedException ignored) { }
+        }
+
+
+        boolean hasData = obj.has("data") && obj.getString("data") != null;
+
+        if (obj.has("id") && !hasData) {
+            Thread handlePostRideT = new Thread(() -> { handlePostRide(request, response); });
+            handlePostRideT.setName("handlePostRideT");
+            handlePostRideT.start();
+            try {handlePostRideT.join(); } catch (InterruptedException ignored) { }
+        }
+
+        if (obj.has("id") && hasData) {
+            Thread handlePostRideRequestDataT = new Thread(() -> { handlePostRideRequestData(request, response, payload); });
+            handlePostRideRequestDataT.setName("handlePostRideRequestDataT");
+            handlePostRideRequestDataT.start();
+            try {handlePostRideRequestDataT.join(); } catch (InterruptedException ignored) { }
+        }
+    }
 
     /**
      * handle POST (Ride)
      * add Ride to AvailableRides
      */
-    protected void handlePostRide(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
+    protected void handlePostRide(HttpServletRequest request, HttpServletResponse response) {
+
+        try {
+            String jsonPayload = IOUtils.toString(request.getReader());
 
 
-        String jsonPayload = IOUtils.toString(request.getReader());
-        final Ride ride = new Ride(jsonPayload);
+            final Ride ride = new Ride(jsonPayload);
 
-        synchronized (available) {
-            available.put(ride.getID(), ride);
-            available.notify();
-        }
+            synchronized (available) {
+                available.put(ride.getID(), ride);
+                available.notify();
+            }
 
-        // ID is final/threadsafe
-        while (!(booked.containsKey(ride.getID()))) {
-            Thread.sleep(500);
-        }
+            // ID is final/threadsafe
+            while (!(booked.containsKey(ride.getID()))) {
+                Thread.sleep(500);
+            }
 
-        synchronized (booked) {
-            //booked.notify();
-            //booked.wait();
-            ride.setRequest(booked.get(ride.getID()).getRequest());
-        }
+            synchronized (booked) {
+                //booked.notify();
+                //booked.wait();
+                ride.setRequest(booked.get(ride.getID()).getRequest());
+            }
 
-        response.setStatus(200);
-        PrintWriter writer = response.getWriter();
-        writer.write(ride.json());
-        writer.flush();
-        writer.close();
+
+            response.setStatus(200);
+            PrintWriter writer = response.getWriter();
+            writer.write(ride.json());
+            writer.flush();
+            writer.close();
+
+        } catch (Exception ignored) {}
 
     }
 }

@@ -1,9 +1,11 @@
 package com.olexyn.misp.reverse;
 
+import java.io.IOException;
+
 public class ReverseApp implements Runnable {
 
 
-    public static void main(String... args) {
+    public static void main(String... args) throws IOException {
         new ReverseApp().doRun();
     }
 
@@ -11,19 +13,22 @@ public class ReverseApp implements Runnable {
     @Override
     public void run() {
 
-        doRun();
+        try {
+            doRun();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
 
-    private void doRun() {
+    private void doRun() throws IOException {
         Reverse reverse = new Reverse();
 
         reverse.FORWARD_URL = "http://localhost:8090/forward";
         reverse.APP_URL = "http://localhost:8090/app";
 
-        Reverse.AVAILABLE_RIDES_OVERHEAD_TRIGGER = 1;
-        Reverse.AVAILABLE_RIDES_OVERHEAD = 2;
+
 
         reverse.start();
     }

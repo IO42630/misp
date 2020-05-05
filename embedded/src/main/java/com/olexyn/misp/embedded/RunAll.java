@@ -1,6 +1,6 @@
 package com.olexyn.misp.embedded;
 
-import com.olexyn.misp.reverse.ReverseApp;
+import com.olexyn.misp.reverse.Reverse;
 
 public class RunAll {
 
@@ -12,7 +12,7 @@ public class RunAll {
 
         Thread.sleep(2000);
 
-        Thread reverseT = new Thread(new ReverseApp());
+        Thread reverseT = new Thread(new Reverse());
         reverseT.start();
     }
 

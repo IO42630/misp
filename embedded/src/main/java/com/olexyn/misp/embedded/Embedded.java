@@ -4,9 +4,7 @@ import com.olexyn.min.http.server.MinJettyServer;
 import com.olexyn.misp.forward.Forward;
 import com.olexyn.misp.mirror.Mirror;
 
-/**
- * Hello world!
- */
+
 public class Embedded implements Runnable {
 
 

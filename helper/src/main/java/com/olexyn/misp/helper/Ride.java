@@ -13,9 +13,7 @@ public class Ride {
     private String request;
     private String data;
 
-    // FUTURE it might be possible to use a ride for many requests.
-    // private List<String> requests = new ArrayList<>();
-    // private Map<String,String> data = new HashMap<>();
+
 
 
     public Ride() {

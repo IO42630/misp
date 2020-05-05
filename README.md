@@ -14,23 +14,15 @@ It is estimated to require two servlets - one on the webhost (`mispbridge`), and
 <br>
 
 #### How to Run / Debug
-* In `mispmock` run `core.Main`.
+* `com.olexyn.misp.embedded.RunAll.main()`
 
 <br>
 
 #### How to Deploy
-* Install Tomcat
-    * `apt-get install tomcat9`
-* Start Tomcat:
-    * `/usr/bin/tomcat9-instance-create -p 9090 <foo>/tomcat/`
-    * `<foo>/tomcat/bin/startup.sh`
-* Link this project to where Tomcat expects files:
-    * `ln -s <bar>/mispbridge/mispbridge/ <foo>/tomcat/webapps/`
-    * `ln -s <bar>/mispclient/mispclient/ <foo>/tomcat/webapps/`
-* Set up your IDE to compile to:
-    * `<bar>/mispbridge/mispbridge/WEB-INF/classes/`
-    * `<bar>/mispclient/mispclient/WEB-INF/classes/`
-* Compile the project & restart Tomcat.
+* Set the URIs in code.
+* Build (e.g. with `build-install-all.sh`)
+* Put the generated `forward-0.1.war` in a servlet container (e.g. Jetty).
+* Launch the `reverse-0.1.jar` on your host. 
 
 <br>
 

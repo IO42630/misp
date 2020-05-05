@@ -6,14 +6,16 @@ public class RunAll {
 
     public static void main(String... args) throws InterruptedException {
 
-
         Thread serverT = new Thread(new Embedded());
         serverT.start();
 
         Thread.sleep(2000);
 
-        Thread reverseT = new Thread(new Reverse());
+        Reverse reverse = new Reverse();
+        reverse.FORWARD_URL = "http://localhost:8090/forward";
+        reverse.APP_URL = "http://localhost:8090/app";
+
+        Thread reverseT = new Thread(reverse);
         reverseT.start();
     }
-
 }

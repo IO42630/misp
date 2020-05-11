@@ -1,9 +1,9 @@
 #### About
 The `forward` servlet.
 
-#### Deploy
+#### Deploy (TODO)
 * Run `install-locally.sh`
 * Find the `forward-0.1.war` in `./target`
-* copy it to `tomcat/webapps`.
+* Copy it to `tomcat/webapps`.
 * Assuming tomcat runs at `http://localhost:9090`
-    * Then the servlet will be at `http://localhost:9090/mirror-0.1/mirror`
+    * Then the servlet will be at `http://localhost:9090/forward-0.1/mirror`

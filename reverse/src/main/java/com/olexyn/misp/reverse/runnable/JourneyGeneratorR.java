@@ -1,7 +1,9 @@
-package com.olexyn.misp.reverse;
+package com.olexyn.misp.reverse.runnable;
 
 
-public class JourneyGenerator implements Runnable {
+import com.olexyn.misp.reverse.Reverse;
+
+public class JourneyGeneratorR implements Runnable {
 
     public int OVERHEAD = 8;
     public int CHECK_DEPLETION_INTERVAL = 500;
@@ -10,7 +12,7 @@ public class JourneyGenerator implements Runnable {
     private Reverse reverse;
     private CheckSuppyR checkSuppyR;
 
-    public JourneyGenerator(Reverse reverse , CheckSuppyR checkSuppyR) {
+    public JourneyGeneratorR(Reverse reverse , CheckSuppyR checkSuppyR) {
         this.reverse = reverse;
         this.checkSuppyR = checkSuppyR;
     }
@@ -19,16 +21,23 @@ public class JourneyGenerator implements Runnable {
 
     @Override
     public void run() {
-
+        int LIMIT = 0;
         while (true) {
+
             try {
                 Thread journeyT = new Thread(new JourneyR(reverse));
                 journeyT.setName("journeyT");
                 journeyT.start();
+                LIMIT++;
 
-                while (checkSuppyR.getAvailable() > OVERHEAD) { Thread.sleep(CHECK_DEPLETION_INTERVAL); }
+                while (checkSuppyR.getAvailable() > OVERHEAD ) { Thread.sleep(CHECK_DEPLETION_INTERVAL); }
 
                 Thread.sleep(START_NEW_JOURNEY_INTERVAL);
+                if(LIMIT > 2* OVERHEAD){
+                    Thread.sleep(CHECK_DEPLETION_INTERVAL);
+                    LIMIT = 0;
+                }
+                // TODO rework this, so it sends - but not too much, and so it wais - but not too long.
 
             } catch (Exception ignored) { }
         }

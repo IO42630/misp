@@ -17,7 +17,7 @@
 
   <servlet-mapping>
     <servlet-name>misp-mirror</servlet-name>
-    <url-pattern>/core</url-pattern>
+    <url-pattern>/mirror</url-pattern>
   </servlet-mapping>
 
 </web-app>

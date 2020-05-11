@@ -16,150 +16,88 @@ import java.util.Map;
 
 public class Forward extends HttpServlet {
 
-    protected static final String MISP_CLIENT_URL = "http://localhost:9090/mispclient/core";
+    private static final long WAIT_FOR_USER_REQUEST = 500;
 
-    public final Map<Long, Ride> available = new HashMap<>();
-    public final Map<Long, Ride> booked = new HashMap<>();
-    public final Map<Long, Ride> loaded = new HashMap<>();
+    private final Map<Long, Ride> available = new HashMap<>();
+    private final Map<Long, Ride> booked = new HashMap<>();
+    private final Map<Long, Ride> loaded = new HashMap<>();
 
-    // #######
-    //
-    // #######
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
 
-
-        Thread handleGetRequestThread = new Thread(() -> {
-            try {
-                handleGetRequest(request, response);
-            } catch (IOException | InterruptedException e) {e.printStackTrace(); }
-        });
+        Thread handleGetRequestThread = new Thread(() -> { handleGetRequest(request, response); });
         handleGetRequestThread.setName("handleGetRequestThread");
         handleGetRequestThread.start();
         try {handleGetRequestThread.join(); } catch (InterruptedException ignored) { }
-
-
     }
 
 
     /**
-     * handle GET (Link)
-     * remove Ride from AvailableRides
-     * add Ride to ReservedRides
-     * send OK (Ride) to mispclient
-     * send OK (Ride) to public
+     * Handle GET (Request).
+     * Remove next Ride from `available`.
+     * Put the Ride to `booked`.
+     * Wait for Ride to appear in `loaded`. This happens due to POST (Ride)(Request)(Data) from `reverse`.
+     * Finally send OK (Data) to `user`.
      */
-    protected void handleGetRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException {
-        final Ride ride;
-
-
-        final ServletInputStream in = request.getInputStream();
-        final String parsedRequest = new String(in.readAllBytes());
-
-
-        synchronized (available) {
-
-            while (available.size() < 1) {
-                available.notify();
-                available.wait();
-            }
-            // ride exists only locally, thus safe
-            ride = available.entrySet().iterator().next().getValue();
-            // ride exists only in "available", access through which is sync, thus safe
-            available.remove(ride.getID());
-            // needed because POST (Ride) wait()s
-            available.notify();
-        }
-
-        synchronized (booked) {
-            // ride exists only locally, thus safe
-            booked.put(ride.getID(), ride);
-            // ride exists only in "booked", access through which is sync, thus safe
-            ride.setRequest(parsedRequest);
-            // POST (Ride) wait()s
-            booked.notify();
-        }
-
-        synchronized (loaded) {
-
-            boolean realcondition = !loaded.containsKey(ride.getID());
-            boolean relaxedcondition = loaded.size() == 0;
-
-            while (loaded.size() == 0) {
-
-                loaded.notify();
-                if (loaded.size() > 0) {
-                    break;
-                }
-                loaded.wait();
-
-            }
-
-
-            // CARE this is tricky
-            // what if ride exists in another map, e.g. "available'
-            // in that case illegal access is possible
-            // be carefull to removing ride from all other references, when adding it to "loaded".
-            Ride badbad__ride = loaded.entrySet().iterator().next().getValue();
-            ride.setData(loaded.remove(badbad__ride.getID()).getData());
-            //ride.setData(loaded.remove(ride.getID()).getData());
-
-        }
-
-        response.setStatus(200);
-        final PrintWriter writer = response.getWriter();
-        writer.write(ride.getData());
-        writer.flush();
-        writer.close();
-    }
-
-
-    /**
-     * handle GET (Ride)(Data)
-     * if Ride in ForwardedRequest
-     * remove Ride from ForwardedRequest
-     * add Ride to NewData
-     * send OK (Ride)(Data)
-     * remove Ride from NewData
-     * add Ride to ForwardedData
-     * send OK (EOL)
-     * remove Ride from ForwardedData
-     * add Ride to EOL
-     */
-    protected void handlePostRideRequestData(HttpServletRequest request, HttpServletResponse response, String payload) {
-
-        final String _payload = payload;
-        final Ride ride = new Ride(_payload);
-
-        synchronized (booked) {
-            booked.remove(ride.getID());
-        }
-
-        synchronized (loaded) {
-            loaded.put(ride.getID(), ride);
-            loaded.notify();
-        }
-    }
-
-
-    protected void handlePostAvailable(HttpServletRequest request, HttpServletResponse response) {
-        JSONObject obj = new JSONObject();
-        obj.put("available", available.size());
-
-        response.setStatus(200);
+    protected void handleGetRequest(HttpServletRequest request, HttpServletResponse response) {
         try {
-            PrintWriter writer = response.getWriter();
-            writer.write(obj.toString());
+
+            final Ride ride;
+            final ServletInputStream in = request.getInputStream();
+            final String parsedRequest = new String(in.readAllBytes());
+
+
+            synchronized (available) {
+
+                while (available.size() < 1) {
+                    available.notify();
+                    available.wait();
+                }
+                // ride exists only locally, thus safe
+                ride = available.entrySet().iterator().next().getValue();
+                // ride exists only in "available", access through which is sync, thus safe
+                available.remove(ride.getID());
+                // needed because POST (Ride) wait()s
+                available.notify();
+            }
+
+
+            synchronized (booked) {
+                // ride exists only locally, thus safe
+                booked.put(ride.getID(), ride);
+                // ride exists only in "booked", access through which is sync, thus safe
+                ride.setRequest(parsedRequest);
+                // POST (Ride) wait()s
+                booked.notify();
+            }
+
+
+            synchronized (loaded) {
+
+                while (!loaded.containsKey(ride.getID())) {
+
+                    loaded.notify();
+                    if (loaded.size() > 0) { break; }
+                    loaded.wait();
+                }
+
+                // CARE this is tricky
+                // what if ride exists in another map, e.g. "available'
+                // in that case illegal access is possible
+                // be carefull to removing ride from all other references, when adding it to "loaded".
+                ride.setData(loaded.remove(ride.getID()).getData());
+            }
+
+            response.setStatus(200);
+            final PrintWriter writer = response.getWriter();
+            writer.write(ride.getData());
             writer.flush();
             writer.close();
+
         } catch (Exception ignored) {}
     }
 
-
-    // #######
-    //
-    // #######
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -181,7 +119,7 @@ public class Forward extends HttpServlet {
         boolean hasData = obj.has("data") && obj.getString("data") != null;
 
         if (obj.has("id") && !hasData) {
-            Thread handlePostRideT = new Thread(() -> { handlePostRide(request, response); });
+            Thread handlePostRideT = new Thread(() -> { handlePostRide(request, response, payload); });
             handlePostRideT.setName("handlePostRideT");
             handlePostRideT.start();
             try {handlePostRideT.join(); } catch (InterruptedException ignored) { }
@@ -195,17 +133,54 @@ public class Forward extends HttpServlet {
         }
     }
 
+
     /**
-     * handle POST (Ride)
-     * add Ride to AvailableRides
+     * Handle POST (Ride)(Request)(Data)
+     * Move the Ride from `booked` to `loaded`, so it can be picked up by OK (Data) of GET (Request).
      */
-    protected void handlePostRide(HttpServletRequest request, HttpServletResponse response) {
+    protected void handlePostRideRequestData(HttpServletRequest request, HttpServletResponse response, String payload) {
 
+        final Ride ride = new Ride(payload);
+
+        synchronized (booked) {
+            booked.remove(ride.getID());
+        }
+
+        synchronized (loaded) {
+            loaded.put(ride.getID(), ride);
+            loaded.notify();
+        }
+    }
+
+
+    /**
+     * Handle POST (Available).
+     * Send current # of available Rides to `reverse`.
+     */
+    protected void handlePostAvailable(HttpServletRequest request, HttpServletResponse response) {
+
+        JSONObject obj = new JSONObject().put("available", available.size());
+
+        response.setStatus(200);
         try {
-            String jsonPayload = IOUtils.toString(request.getReader());
+            PrintWriter writer = response.getWriter();
+            writer.write(obj.toString());
+            writer.flush();
+            writer.close();
+        } catch (Exception ignored) {}
+    }
 
 
-            final Ride ride = new Ride(jsonPayload);
+    /**
+     * Handle POST (Ride).
+     * Add Ride to `available`.
+     * Wait till a GET (Request) arrives from `user`.
+     * Return OK (Ride)(Request) to `reverse`.
+     */
+    protected void handlePostRide(HttpServletRequest request, HttpServletResponse response, String payload) {
+        try {
+
+            final Ride ride = new Ride(payload);
 
             synchronized (available) {
                 available.put(ride.getID(), ride);
@@ -214,15 +189,12 @@ public class Forward extends HttpServlet {
 
             // ID is final/threadsafe
             while (!(booked.containsKey(ride.getID()))) {
-                Thread.sleep(500);
+                Thread.sleep(WAIT_FOR_USER_REQUEST);
             }
 
             synchronized (booked) {
-                //booked.notify();
-                //booked.wait();
                 ride.setRequest(booked.get(ride.getID()).getRequest());
             }
-
 
             response.setStatus(200);
             PrintWriter writer = response.getWriter();
@@ -231,6 +203,5 @@ public class Forward extends HttpServlet {
             writer.close();
 
         } catch (Exception ignored) {}
-
     }
 }

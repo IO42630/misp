@@ -1,6 +1,9 @@
 package com.olexyn.misp.reverse;
 
 
+import com.olexyn.misp.reverse.runnable.CheckSuppyR;
+import com.olexyn.misp.reverse.runnable.JourneyGeneratorR;
+
 public class Reverse implements Runnable {
 
     public String FORWARD_URL = "http://localhost:8090/forward";
@@ -9,13 +12,13 @@ public class Reverse implements Runnable {
 
     public void start() {
 
-        CheckSuppyR  checkSuppyR = new CheckSuppyR(this);
+        CheckSuppyR checkSuppyR = new CheckSuppyR(this);
 
         Thread checkSupplyT = new Thread(checkSuppyR);
         checkSupplyT.setName("checkSupplyT");
         checkSupplyT.start();
 
-        Thread journeyGeneratorT = new Thread(new JourneyGenerator(this, checkSuppyR));
+        Thread journeyGeneratorT = new Thread(new JourneyGeneratorR(this, checkSuppyR));
         journeyGeneratorT.setName("journeyGeneratorT");
         journeyGeneratorT.start();
     }

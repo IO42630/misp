@@ -16,7 +16,7 @@
 
   <servlet-mapping>
     <servlet-name>misp-fwd</servlet-name>
-    <url-pattern>/core</url-pattern>
+    <url-pattern>/forward</url-pattern>
   </servlet-mapping>
 
 </web-app>

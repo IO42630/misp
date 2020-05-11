@@ -10,7 +10,7 @@ import java.net.URL;
 public class Tools {
 
 
-    static String send(String method, String urlString, String body) throws IOException {
+    public static String send(String method, String urlString, String body) throws IOException {
 
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -22,20 +22,14 @@ public class Tools {
         if (method.equals("POST") || getToForward) {
             connection.setDoOutput(true);
 
-
             DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
 
-            if (body != null) {
-                outputStream.writeBytes(body);
-            }
+            if (body != null) { outputStream.writeBytes(body); }
 
             outputStream.flush();
             outputStream.close();
-
         }
 
-
-        int i = connection.getResponseCode();
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String out;
         StringBuilder sb = new StringBuilder();

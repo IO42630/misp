@@ -5,7 +5,7 @@ import com.olexyn.misp.forward.Forward;
 import com.olexyn.misp.mirror.Mirror;
 
 
-public class Embedded implements Runnable {
+public class EmbeddedR implements Runnable {
 
 
     @Override

@@ -1,11 +1,13 @@
 ### About
 The goal of this project is to bypass the limitations caused by ISPs blocking incoming connections.
-To do so have an adapter or reverse-proxy `reverse`. 
-It sends `Rides` to a forward-proxy servlet `forward`.
-This servlet waits for a request, and fills the `Ride` with the request.
-`reverse` can then forward the request to the `app`.
+To do so, the proxy `reverse` is created. 
+`reverse` sends `Ride` objects to another proxy, which is called `forward`.
+`forward` waits for a request from the `user`, 
+and inserts the request into the `Ride` object received form `reverse`.
+The `Ride` object is then sent back to `reverse`.
+`reverse` subsequently forwards the request contained in the `Ride` object to the `app`.
 Upon recieving a reply with data from `app`, `reverse` will forward this data to `forward`,
-which in turn will finally forward it to `user`.
+which in turn will finally forward it to the `user`.
 
 <br>
 

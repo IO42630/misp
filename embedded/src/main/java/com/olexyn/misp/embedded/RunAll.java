@@ -14,7 +14,7 @@ public class RunAll {
         Reverse reverse = new Reverse();
         reverse.FORWARD_URL = "http://localhost:8090/forward";
         reverse.APP_URL = "http://localhost:8090/app";
-        reverse.APP_URL = "https://olexyn.com/wp/";
+        //reverse.APP_URL = "https://olexyn.com/wp/";
 
 
         Thread reverseT = new Thread(reverse);

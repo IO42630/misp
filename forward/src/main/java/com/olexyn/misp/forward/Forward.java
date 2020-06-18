@@ -193,6 +193,7 @@ public class Forward extends HttpServlet {
             }
 
             synchronized (booked) {
+                // ride = booked.get(ride.getID());
                 ride.setRequest(booked.get(ride.getID()).getRequest());
             }
 

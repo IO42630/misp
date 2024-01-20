@@ -9,6 +9,16 @@ The `Ride` object is then sent back to `reverse`.
 Upon recieving a reply with data from `app`, `reverse` will forward this data to `forward`,
 which in turn will finally forward it to the `user`.
 
+#### Control
+##### Routing / Access Control
+* currently, there is a 1:1 mapping between `forward` and `reverse`.
+  * thus any `Ride` "submitted" to `forward` will 
+    naturally be selected, and circle back to `reverse`. 
+* thus `forward` and `Ride` can both be stateless.
+* if any access control, name resolution, port forwarding were to happen, 
+  it would be done in `reverse`. 
+
+
 <br>
 
 ### Overview
@@ -41,3 +51,19 @@ which in turn will finally forward it to the `user`.
 * Build (e.g. with `build-install-all.sh`)
 * Put the generated `forward-0.1.war` in a servlet container (e.g. Jetty).
 * Launch the `reverse-0.1.jar` on your host. 
+
+
+### Migration (WIP)
+
+#### How would we even test this?
+* one instance of `foward`
+* one instance of `reverse`
+* one instance of `mirror`
+* `reverse` uses `mirror` as app
+* we call `forward` and see `mirror`
+
+#### Steps TODO
+* migrate `forward` to Spring ✅ 
+* parametrize URLs
+* check if `mirror` works
+* 

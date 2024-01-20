@@ -1,0 +1,30 @@
+version: '3'
+services:
+
+
+    forward:
+        container_name: forward
+        image: io42630/forward:0.1
+        ports:
+            - "42001:8080"
+            - "42002:5005"
+
+
+    #  See .env for vars.
+    reverse:
+        container_name: reverse
+        image: io42630/reverse:0.1
+        ports:
+            - "42005:8090"
+            - "42006:5005"
+        environment:
+            - forward.url=${FORWARD_URL}
+            - app.url=${APP_URL}
+
+
+    mirror:
+        container_name: mirror
+        image: io42630/mirror:0.1
+        ports:
+            - "42003:8080"
+            - "42004:5005"

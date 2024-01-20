@@ -5,6 +5,8 @@ import com.olexyn.misp.reverse.Tools;
 import lombok.Getter;
 import org.json.JSONObject;
 
+import static com.olexyn.misp.reverse.Reverse.FORWARD_URL;
+
 public class CheckSuppyR implements Runnable {
 
     @Getter
@@ -25,7 +27,7 @@ public class CheckSuppyR implements Runnable {
             JSONObject obj = new JSONObject().put("available", 0);
 
             try {
-                String result = Tools.send("POST", reverse.FORWARD_URL, obj.toString());
+                String result = Tools.send("POST", FORWARD_URL, obj.toString());
 
                 JSONObject resultObj = new JSONObject(result);
 

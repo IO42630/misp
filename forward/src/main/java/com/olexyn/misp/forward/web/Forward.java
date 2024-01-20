@@ -26,7 +26,7 @@ public class Forward {
     private final Map<Long, Ride> loaded = new HashMap<>();
 
 
-    @GetMapping
+    @GetMapping("/")
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
 
         Thread handleGetRequestThread = new Thread(() -> handleGetRequest(request, response));
@@ -102,7 +102,7 @@ public class Forward {
     }
 
 
-    @PostMapping
+    @PostMapping("/")
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String payload = IOUtils.toString(request.getReader());

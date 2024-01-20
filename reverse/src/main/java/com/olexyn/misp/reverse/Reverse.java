@@ -6,8 +6,8 @@ import com.olexyn.misp.reverse.runnable.JourneyGeneratorR;
 
 public class Reverse implements Runnable {
 
-    public String FORWARD_URL = "http://localhost:8090/forward";
-    public String APP_URL = "http://localhost:8090/app";
+    public static final String FORWARD_URL = System.getenv("forward.url");
+    public static final String APP_URL = System.getenv("app.url");
 
 
     public void start() {

@@ -1,0 +1,6 @@
+POST http://localhost:42001
+Content-Type: application/json
+
+{
+    "hello": "world"
+}

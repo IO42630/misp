@@ -14,3 +14,7 @@
     * Journey fo a `Ride` through the App.
 * `Tools`
     * Performs the actual request. 
+
+### Build
+* maven clean package
+* Dockerfile -> build

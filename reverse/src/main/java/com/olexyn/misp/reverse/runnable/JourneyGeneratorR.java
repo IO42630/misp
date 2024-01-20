@@ -9,8 +9,8 @@ public class JourneyGeneratorR implements Runnable {
     public int CHECK_DEPLETION_INTERVAL = 500;
     public int START_NEW_JOURNEY_INTERVAL = 100;
 
-    private Reverse reverse;
-    private CheckSuppyR checkSuppyR;
+    private final Reverse reverse;
+    private final CheckSuppyR checkSuppyR;
 
     public JourneyGeneratorR(Reverse reverse , CheckSuppyR checkSuppyR) {
         this.reverse = reverse;

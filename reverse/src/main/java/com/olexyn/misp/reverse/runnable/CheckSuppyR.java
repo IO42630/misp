@@ -2,12 +2,15 @@ package com.olexyn.misp.reverse.runnable;
 
 import com.olexyn.misp.reverse.Reverse;
 import com.olexyn.misp.reverse.Tools;
+import lombok.Getter;
 import org.json.JSONObject;
 
 public class CheckSuppyR implements Runnable {
 
+    @Getter
     private int available;
-    public int CHECK_SUPPLY_INTERVAL = 100;
+
+    public int CHECK_SUPPLY_INTERVAL_MILLI = 100;
 
     private Reverse reverse;
 
@@ -28,7 +31,7 @@ public class CheckSuppyR implements Runnable {
 
                 available = resultObj.getInt("available");
 
-                Thread.sleep(CHECK_SUPPLY_INTERVAL);
+                Thread.sleep(CHECK_SUPPLY_INTERVAL_MILLI);
 
             } catch (Exception ignored) { }
         }
@@ -36,6 +39,4 @@ public class CheckSuppyR implements Runnable {
 
     }
 
-
-    public int getAvailable() { return available; }
 }

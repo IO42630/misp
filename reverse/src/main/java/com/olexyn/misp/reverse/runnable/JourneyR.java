@@ -18,10 +18,10 @@ public class JourneyR implements Runnable {
     @Override
     public void run() {
         try {
-            Ride _ride = sendPostRide();
-            _ride = sendGetRequest(_ride);
-            sendPostRideRequestData(_ride);
-        } catch (Exception ignored) { }
+            var ride = sendPostRide();
+            ride = sendGetRequest(ride);
+            sendPostRideRequestData(ride);
+        } catch (Exception ignored) { /* ignored */ }
     }
 
 

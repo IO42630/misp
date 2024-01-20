@@ -4,12 +4,12 @@
     <parent>
         <groupId>com.olexyn</groupId>
         <artifactId>zeeroot</artifactId>
-        <version>17.0.1</version>
+        <version>spring-boot-jdk17-0.1</version>
     </parent>
     <groupId>com.olexyn.misp</groupId>
     <artifactId>mirror</artifactId>
     <version>0.1</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>mirror</name>
     <dependencyManagement>
         <dependencies>
@@ -34,14 +34,26 @@
             <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty.orbit</groupId>
-            <artifactId>javax.servlet</artifactId>
-            <version>3.0.0.v201112011016</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <!-- for some godforsaken reason this is required. -->
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
         </dependency>
     </dependencies>
 

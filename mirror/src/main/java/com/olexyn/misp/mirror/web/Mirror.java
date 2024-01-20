@@ -1,9 +1,11 @@
-package com.olexyn.misp.mirror;
+package com.olexyn.misp.mirror.web;
 
 import com.olexyn.misp.helper.WebPrint;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -11,7 +13,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Mirror extends HttpServlet {
+@RestController
+public class Mirror {
 
 
     private final List<String> list = new ArrayList<>();
@@ -32,7 +35,7 @@ public class Mirror extends HttpServlet {
     }
 
 
-    @Override
+    @GetMapping("/")
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         addRequest(request);
@@ -53,12 +56,8 @@ public class Mirror extends HttpServlet {
     }
 
 
-    @Override
+    @PostMapping("/")
     public void doPost(HttpServletRequest request, HttpServletResponse response) { addRequest(request); }
-
-
-    @Override
-    public void doPut(HttpServletRequest request, HttpServletResponse response) { addRequest(request); }
 
 }
 

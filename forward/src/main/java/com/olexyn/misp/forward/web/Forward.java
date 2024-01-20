@@ -16,6 +16,8 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.olexyn.misp.helper.Constants.AVAILABLE;
+
 @RestController
 public class Forward {
 
@@ -59,8 +61,8 @@ public class Forward {
                 }
                 // ride exists only locally, thus safe
                 ride = available.entrySet().iterator().next().getValue();
-                // ride exists only in "available", access through which is sync, thus safe
-                available.remove(ride.getID());
+                // ride exists only in AVAILABLE, access through which is sync, thus safe
+                available.remove(ride.getId());
                 // needed because POST (Ride) wait()s
                 available.notify();
             }
@@ -68,7 +70,7 @@ public class Forward {
 
             synchronized (booked) {
                 // ride exists only locally, thus safe
-                booked.put(ride.getID(), ride);
+                booked.put(ride.getId(), ride);
                 // ride exists only in "booked", access through which is sync, thus safe
                 ride.setRequest(parsedRequest);
                 // POST (Ride) wait()s
@@ -78,7 +80,7 @@ public class Forward {
 
             synchronized (loaded) {
 
-                while (!loaded.containsKey(ride.getID())) {
+                while (!loaded.containsKey(ride.getId())) {
 
                     loaded.notify();
                     if (loaded.size() > 0) { break; }
@@ -89,7 +91,7 @@ public class Forward {
                 // what if ride exists in another map, e.g. "available'
                 // in that case illegal access is possible
                 // be carefull to removing ride from all other references, when adding it to "loaded".
-                ride.setData(loaded.remove(ride.getID()).getData());
+                ride.setData(loaded.remove(ride.getId()).getData());
             }
 
             response.setStatus(200);
@@ -111,7 +113,7 @@ public class Forward {
 
         JSONObject obj = new JSONObject(payload);
 
-        if (obj.has("available")) {
+        if (obj.has(AVAILABLE)) {
             Thread handlePostAvailableT = new Thread(() -> { handlePostAvailable(request, response); });
             handlePostAvailableT.setName("handlePostAvailableT");
             handlePostAvailableT.start();
@@ -129,7 +131,7 @@ public class Forward {
         }
 
         if (obj.has("id") && hasData) {
-            Thread handlePostRideRequestDataT = new Thread(() -> { handlePostRideRequestData(request, response, payload); });
+            Thread handlePostRideRequestDataT = new Thread(() -> { handlePostRideRequestData(payload); });
             handlePostRideRequestDataT.setName("handlePostRideRequestDataT");
             handlePostRideRequestDataT.start();
             try {handlePostRideRequestDataT.join(); } catch (InterruptedException ignored) { }
@@ -141,16 +143,16 @@ public class Forward {
      * Handle POST (Ride)(Request)(Data)
      * Move the Ride from `booked` to `loaded`, so it can be picked up by OK (Data) of GET (Request).
      */
-    private void handlePostRideRequestData(HttpServletRequest request, HttpServletResponse response, String payload) {
+    private void handlePostRideRequestData(String payload) {
 
         final Ride ride = new Ride(payload);
 
         synchronized (booked) {
-            booked.remove(ride.getID());
+            booked.remove(ride.getId());
         }
 
         synchronized (loaded) {
-            loaded.put(ride.getID(), ride);
+            loaded.put(ride.getId(), ride);
             loaded.notify();
         }
     }
@@ -160,17 +162,17 @@ public class Forward {
      * Handle POST (Available).
      * Send current # of available Rides to `reverse`.
      */
-    private void handlePostAvailable(HttpServletRequest request, HttpServletResponse response) {
+    private void handlePostAvailable(HttpServletRequest req, HttpServletResponse res) {
 
-        JSONObject obj = new JSONObject().put("available", available.size());
+        JSONObject obj = new JSONObject().put(AVAILABLE, available.size());
 
-        response.setStatus(200);
+        res.setStatus(200);
         try {
-            PrintWriter writer = response.getWriter();
+            PrintWriter writer = res.getWriter();
             writer.write(obj.toString());
             writer.flush();
             writer.close();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) { /* ignored */ }
     }
 
 
@@ -186,18 +188,18 @@ public class Forward {
             final Ride ride = new Ride(payload);
 
             synchronized (available) {
-                available.put(ride.getID(), ride);
+                available.put(ride.getId(), ride);
                 available.notify();
             }
 
             // ID is final/threadsafe
-            while (!(booked.containsKey(ride.getID()))) {
+            while (!(booked.containsKey(ride.getId()))) {
                 Thread.sleep(WAIT_FOR_USER_REQUEST);
             }
 
             synchronized (booked) {
-                // ride = booked.get(ride.getID());
-                ride.setRequest(booked.get(ride.getID()).getRequest());
+                // ride = booked.get(ride.getId());
+                ride.setRequest(booked.get(ride.getId()).getRequest());
             }
 
             response.setStatus(200);
@@ -206,6 +208,6 @@ public class Forward {
             writer.flush();
             writer.close();
 
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) { /* ignored */ }
     }
 }

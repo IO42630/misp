@@ -20,6 +20,7 @@ services:
         environment:
             - forward.url=${FORWARD_URL}
             - app.url=${APP_URL}
+            - check.supply.interval.ms=${CHECK_SUPPLY_INTERVAL_MS}
 
 
     mirror:

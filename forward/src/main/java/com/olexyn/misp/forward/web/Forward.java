@@ -1,12 +1,14 @@
-package com.olexyn.misp.forward;
+package com.olexyn.misp.forward.web;
 
 import com.olexyn.misp.helper.JsonHelper;
 import com.olexyn.misp.helper.Ride;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -14,7 +16,8 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Forward extends HttpServlet {
+@RestController
+public class Forward {
 
     private static final long WAIT_FOR_USER_REQUEST = 500;
 
@@ -23,10 +26,10 @@ public class Forward extends HttpServlet {
     private final Map<Long, Ride> loaded = new HashMap<>();
 
 
-    @Override
+    @GetMapping
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
 
-        Thread handleGetRequestThread = new Thread(() -> { handleGetRequest(request, response); });
+        Thread handleGetRequestThread = new Thread(() -> handleGetRequest(request, response));
         handleGetRequestThread.setName("handleGetRequestThread");
         handleGetRequestThread.start();
         try {handleGetRequestThread.join(); } catch (InterruptedException ignored) { }
@@ -40,7 +43,7 @@ public class Forward extends HttpServlet {
      * Wait for Ride to appear in `loaded`. This happens due to POST (Ride)(Request)(Data) from `reverse`.
      * Finally send OK (Data) to `user`.
      */
-    protected void handleGetRequest(HttpServletRequest request, HttpServletResponse response) {
+    private void handleGetRequest(HttpServletRequest request, HttpServletResponse response) {
         try {
 
             final Ride ride;
@@ -99,7 +102,7 @@ public class Forward extends HttpServlet {
     }
 
 
-    @Override
+    @PostMapping
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String payload = IOUtils.toString(request.getReader());
@@ -138,7 +141,7 @@ public class Forward extends HttpServlet {
      * Handle POST (Ride)(Request)(Data)
      * Move the Ride from `booked` to `loaded`, so it can be picked up by OK (Data) of GET (Request).
      */
-    protected void handlePostRideRequestData(HttpServletRequest request, HttpServletResponse response, String payload) {
+    private void handlePostRideRequestData(HttpServletRequest request, HttpServletResponse response, String payload) {
 
         final Ride ride = new Ride(payload);
 
@@ -157,7 +160,7 @@ public class Forward extends HttpServlet {
      * Handle POST (Available).
      * Send current # of available Rides to `reverse`.
      */
-    protected void handlePostAvailable(HttpServletRequest request, HttpServletResponse response) {
+    private void handlePostAvailable(HttpServletRequest request, HttpServletResponse response) {
 
         JSONObject obj = new JSONObject().put("available", available.size());
 
@@ -177,7 +180,7 @@ public class Forward extends HttpServlet {
      * Wait till a GET (Request) arrives from `user`.
      * Return OK (Ride)(Request) to `reverse`.
      */
-    protected void handlePostRide(HttpServletRequest request, HttpServletResponse response, String payload) {
+    private void handlePostRide(HttpServletRequest request, HttpServletResponse response, String payload) {
         try {
 
             final Ride ride = new Ride(payload);

@@ -8,7 +8,7 @@
     <artifactId>zeeroot</artifactId>
     <version>17.0.1</version>
   </parent>
-  <groupId>com.olexyn.misp.reverse</groupId>
+  <groupId>com.olexyn.misp</groupId>
   <artifactId>reverse</artifactId>
   <version>0.1</version>
 

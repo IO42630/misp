@@ -2,12 +2,12 @@ version: '3'
 services:
 
 
-    forward:
-        container_name: forward
-        image: io42630/forward:0.1
-        ports:
-            - "42001:8080"
-            - "42002:5005"
+#    forward:
+#        container_name: forward
+#        image: io42630/forward:0.1
+#        ports:
+#            - "42001:8080"
+#            - "42002:5005"
 
 
     #  See .env for vars.

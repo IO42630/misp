@@ -1,5 +1,5 @@
 #POST http://localhost:42001
-GET http://node175251-env-1739619.sh1.hidora.com:11231/
+POST http://node175251-env-1739619.sh1.hidora.com:11231/
 Content-Type: application/json
 
 {

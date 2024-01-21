@@ -29,13 +29,6 @@ which in turn will finally forward it to the `user`.
 #### What does not work:
 * Handling 301 (Moved Permanently).
 * Forwarding PUT requests - if needed, the logic might be quickly added to `doPut` in `forward`.
-* The `forward.war` has issues - meanwhile run `forward` embedded with Jetty.
-
-<br>
-
-### Demo
-[![IMAGE ALT TEXT](http://img.youtube.com/vi/WcSvzeu6nKo/0.jpg)](https://youtu.be/WcSvzeu6nKo "misp Demo")
-
 
 <br>
 
@@ -53,17 +46,22 @@ which in turn will finally forward it to the `user`.
 * Launch the `reverse-0.1.jar` on your host. 
 
 
-### Migration (WIP)
+### Security Considerations
+* user might access other resources (i.e. another app)
+  * user might manipulate the `app` URL
+    * the URL of the app is provided as ENV
+    * `reverse` calls said URL.
+    * the URL is never transmitted over the network
+    * the `Ride` object which `forward` receives contains only the _original_ request and the response payload from `app`
+  * user might use redirect magic
+    * user can not manipulate URL directly
+    * but if the server is not properly configured, the user might exploit that
+    * thus only expose local servers that you consider hardened.
+    * TODO possibly do some Header editing, before calling `app` URL in `Tools.send()`
 
-#### How would we even test this?
-* one instance of `foward`
-* one instance of `reverse`
-* one instance of `mirror`
-* `reverse` uses `mirror` as app
-* we call `forward` and see `mirror`
 
-#### Steps TODO
-* migrate `forward` to Spring ✅ 
-* parametrize URLs
-* check if `mirror` works
-* 
+### Considerations How to add multiple host mapping
+* keep `forward` agnostic
+  * supply parameter to `/` indicating desired target service
+* in `reverse`
+  * maintain a map of desired service -> URL

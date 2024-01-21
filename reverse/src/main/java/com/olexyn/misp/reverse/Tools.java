@@ -17,6 +17,7 @@ public class Tools {
         URL url = URI.create(urlString).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod(method);
+        connection.getHeaderFields(); // TODO
 
 
         boolean getToForward = method.equals("GET") && urlString.contains("forward");
